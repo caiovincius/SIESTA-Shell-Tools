@@ -1,5 +1,5 @@
 # SIESTA-PDOS-Utility
-A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy and fast, this tools is for you!
+A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy and fast, this tool is for you!
 
 ## What does this script do?
 - It will easy generate a PDOS (Projected Density of States) with the Fermi level for you calculation done on SIESTA Package. You can also separate the energy levels of repeated atoms in your system and customize your graph before plot in xmgrace.
@@ -13,7 +13,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 5. Open a terminal in this folder and type the following command: ./script_PDOS_plot
 6. Follow the steps that will appear! 
 
-Options:
+## Options:
 - The First option that will appear is:
 "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 If you choose Yes, new options will appear for you choose the atom you want (Ex.: Fe, C_gga, Mn_lda... Enter the specie name that appear), and then the energy level you want (Ex.: 2s, 3p, 4f, 3, 5... You can enter only the n quantum number or the n and l quantum numbers). After that, the tool you ask if you want to plot more energy levels and you can choose as many as you want. If you don't wanna, type 0.
