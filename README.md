@@ -6,7 +6,7 @@ What does this script do?
 
 How to use?
 In the first time you use this script do this:
--1- Copy the script_PDOS_plot to the folder Util/pdosxml (It is located inside your SIESTA folder).
+- 1- Copy the script_PDOS_plot to the folder Util/pdosxml (It is located inside your SIESTA folder).
 -2- Open a terminal in this folder and type the following command: chmod +x script_PDOS_plot
 (Only do the steps 1 and 2 in the first time you use this script)
 -3- Copy the .PDOS and .bands files to the folder Util/pdosxml (It is located inside your SIESTA folder).
