@@ -13,7 +13,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 5. Open a terminal in this folder and type the following command: ./script_PDOS_plot
 6. Follow the options that will appear! (They are explained below)
 
-## Options:
+## Options
 - The First option that will appear is:
 
 "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
@@ -35,6 +35,7 @@ For this, you have to certify yourself that the atoms coordinates of the ethanol
 Hence, in this option you have to enter from which atom you want to separate the states. You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
 Note: Basically, what the tool wil do is split the PDOS from the atom X to atom Y, and then it will compare the two files, if a repeated specie is found, it will extract them separately and will put a different subtitle in these states (Ex.: Substitle C(1) for carbon states of the nanotube and C(2) of the ethanol), the others states will be extracted normally.
 
+## What will be done?
 After you choose all the options you want, this tools will:
 - Create a folder with your System Label
 - Move your .PDOS and .bands files for the created folder
