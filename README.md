@@ -39,8 +39,10 @@ After you choose all the options you want, this tools will:
 - Generate a .dat file called Fermi-Level.dat with you Fermi Level coordinates to be imported in your PDOS graph.
 - If you choose to customize your graph for xmgrace, a .agr file will be generated and automatically will be openned in your xmgrace.
 - If you DO NOT choose to customize your graph for xmgrace, a table with the order of each state will be shown in your terminal. Ex.: 
+    ```
     1º State: C
     2º State: N_2s
     3º State: N_2p
     4º State: H(1)
     5º State: H(2)
+    ```
