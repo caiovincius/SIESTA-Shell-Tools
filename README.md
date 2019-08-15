@@ -23,12 +23,25 @@ If you choose No, the script will not plot all energy levels together of each at
 - The Second option that will appear is:
 "Do you want to customize your chart for xmgrace? (Y)Yes (N)No"
 (EXPERIMENTAL OPTION)
-If you like to plot your graph in xmgrace, this option is for you, this tool will customize your graph for you automatically.
+If you like to plot your graph in xmgrace, this option is for you, this tool will customize your graph with subtitles for each state automatically, colors and many others features that will choose.
 If you choose Yes, new options will appear asking you for the X_min, X_max, Y_min and Y_max values to cut your graph. After that, you will be asked to enter the color of each line, and a .agr file will be generated after this script do its work.
 
 - The Third option that will appear is:
 "Do you want to split the PDOS from some atom? (Y)Yes (N)No"
-This option is useful if your system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states from the nanotube and the ethanol molecule. For this, you have to certify yourself that the atoms coordinates of the ethanol molecule is after or before the carbon nanotube coordinates in your SIESTA input. Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
+This option is useful if your system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states from the nanotube and the ethanol molecule. 
+For this, you have to certify yourself that the atoms coordinates of the ethanol molecule is after or before the carbon nanotube coordinates in your SIESTA input. Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
 Hence, in this option you have to enter from which atom you want to separate the states. You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
 Note: Basically, what the tool wil do is split the PDOS from the atom X to atom Y, and then it will compare the two files, if a repeated specie is found, it will extract them separately and will put a different subtitle in these states (Ex.: Substitle C(1) for carbon states of the nanotube and C(2) of the ethanol), the others states will be extracted normally.
 
+After you choose all the options you want, this tools will:
+- Create a folder with your System Label
+- Move your .PDOS and .bands files for the created folder
+- Generate a .dat file called PDOS-YOUR_SYSTEMLABEL.dat with your PDOS graph.
+- Generate a .dat file called Fermi-Level.dat with you Fermi Level coordinates to be imported in your PDOS graph.
+- If you choose to customize your graph for xmgrace, a .agr file will be generated and automatically will be openned in your xmgrace.
+- If you DO NOT choose to customize your graph for xmgrace, a table with the order of each state will be shown in your terminal. Ex.: 
+    1º State: C
+    2º State: N_2s
+    3º State: N_2p
+    4º State: H(1)
+    5º State: H(2)
