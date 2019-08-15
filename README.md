@@ -26,5 +26,9 @@ If you choose No, the script will not plot all energy levels together of each at
 If you like to plot your graph in xmgrace, this option is for you, this tool will customize your graph for you automatically.
 If you choose Yes, new options will appear asking you for the X_min, X_max, Y_min and Y_max values to cut your graph. After that, you will be asked to enter the color of each line, and a .agr file will be generated after this script do its work.
 
-- The Second option that will appear is:
+- The Third option that will appear is:
+"Do you want to split the PDOS from some atom? (Y)Yes (N)No"
+This option is useful if your system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states from the nanotube and the ethanol molecule. For this, you have to certify yourself that the atoms coordinates of the ethanol molecule is after or before the carbon nanotube coordinates in your SIESTA input. Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
+Hence, in this option you have to enter from which atom you want to separate the states. You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
+Note: Basically, what the tool wil do is split the PDOS from the atom X to atom Y, and then it will compare the two files, if a repeated specie is found, it will extract them separately and will put a different subtitle in these states (Ex.: Substitle C(1) for carbon states of the nanotube and C(2) of the ethanol), the others states will be extracted normally.
 
