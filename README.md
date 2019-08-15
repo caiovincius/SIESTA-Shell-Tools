@@ -45,4 +45,5 @@ After you choose all the options you want, this tools will:
     3º State: N_2p
     4º State: H(1)
     5º State: H(2)
-    ```
+     ```
+- If you choose to split the PDOS from some atom, if repeated species is found, a different subtitle will be done for these states automaticall in .agr file if you chooose to customize for xmgrace, if not the subtitles will appear with different name for the repeated specie, for example the 4º and 5º State in the example above for hydrogen.
