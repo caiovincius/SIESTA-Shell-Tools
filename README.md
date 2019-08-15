@@ -11,7 +11,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 3. Copy the .PDOS and .bands files to the folder Util/pdosxml (It is located inside your SIESTA folder).
 4. Be sure that only has one .PDOS and .bands file in this folder.
 5. Open a terminal in this folder and type the following command: ./script_PDOS_plot
-6. Follow the steps that will appear! 
+6. Follow the options that will appear! (They are explained below)
 
 ## Options:
 - The First option that will appear is:
