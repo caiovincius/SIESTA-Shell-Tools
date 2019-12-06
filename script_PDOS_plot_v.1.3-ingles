@@ -1,0 +1,1029 @@
+#!/bin/bash
+
+#To use this script run the command: ./script_PDOS_plot
+#If some error occurs, type the following command at the terminal: chmod + x script_PDOS_others
+#And run the script again
+
+#Do not change the code below, please!
+#By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
+
+nome_pdos=*.PDOS
+nome_banda=*.bands
+pdosxml=("")
+Label_X="Energy (eV)"
+Label_Y="PDOS"
+
+X_min=-12
+X_max=2
+Y_min=-60
+Y_max=60
+
+cor_linha=(1 4 2 3 6 11 15 13 8 14 12 9 7 10 5)
+ #color 0  white
+ #color 1 black
+ #color 2 red
+ #color 3 green
+ #color 4 blue
+ #color 5 yellow
+ #color 6 brown
+ #color 7 grey
+ #color 8 violet
+ #color 9 cyan
+ #color 10 magenta
+ #color 11 orange
+ #color 12 indigo
+ #color 13 maroon
+ #color 14 turquoise
+ #color 15 green4
+
+if [[ $nome_banda == "*.bands" || $nome_pdos == "*.PDOS" ]];then
+  if [[ $nome_banda == "*.bands" ]]; then
+    if ls *.bands 1> /dev/null 2>&1; then 
+      bandas=(`find *.bands`)
+      if [ ${#bandas[*]} -gt 1 ];then
+         echo -e "\nERROR: Two or more .bands files found."
+  	     exit
+	  fi
+    else 
+     echo -e "\nERROR: No .bands files found"
+	 exit  
+    fi
+  fi
+  if [[ $nome_pdos == "*.PDOS" ]]; then
+    if ls *.PDOS 1> /dev/null 2>&1; then
+      pdos=(`find *.PDOS`)
+      if [ ${#pdos[*]} -gt 1 ];then
+         echo -e "\nERROR: Two or more .PDOS files found."
+	     exit
+	  fi
+	else
+      echo -e "\nERROR: No .PDOS files found"
+      exit         
+    fi
+  fi
+  
+#else
+#  if [ -e $nome_banda ];then
+#     echo -e "\nERROR: File" $nome_banda "not found"
+#	 exit
+#  fi
+#  if [ -e $nome_pdos ];then
+#     echo -e "\nERROR: File" $nome_pdos "not found"
+#	 exit
+#  fi
+fi
+
+bandas=(`find $nome_banda`)
+pdos=(`find $nome_pdos`)
+nome_pdos=$pdos
+
+species=(`grep species $nome_pdos | awk '!x[$0]++' | cut -f2 -d'"'`)
+spin=`grep spin $nome_pdos | cut -f2 -d">" | cut -f1 -d"<"`
+
+# Function verify atom
+verify_atom()
+{
+  for ((i=0; i<${#species[*]}; i++)); do
+    if [ $awn2 == ${species[$i]} ];then
+	  i=$((${#species[*]}+1))
+	  echo 0
+	  return
+	fi
+  done
+  echo 1
+}
+
+# Function m_orbital_chooser
+m_orbital_chooser()
+{
+verify_pdosxml=""
+if [ $awn1 == "N" ] || [ $awn1 == "n" ]; then
+  verify_pdosxml=(`echo pdosxml_${specie_x}`)
+else
+  verify_pdosxml=(`echo pdosxml_${awn2}-${awn3}`)
+fi
+echo "Creating the file" $verify_pdosxml
+if [ ! -e $verify_pdosxml ]; then
+m_orbital_file1="! 
+\n! This file is part of the SIESTA package.
+\n!
+\n! Copyright (c) Fundacion General Universidad Autonoma de Madrid:
+\n! E.Artacho, J.Gale, A.Garcia, J.Junquera, P.Ordejon, D.Sanchez-Portal
+\n! and J.M.Soler, 1996- .
+\n! 
+\n! Use of this software constitutes agreement with the full conditions
+\n! given in the SIESTA license, as signed by all legitimate users.
+\n!
+\nmodule m_orbital_chooser
+\n!
+\n! Determines which orbitals to consider when processing PDOS data
+\n!
+\ntype, public :: orbital_id_t
+\n   integer  :: n
+\n   integer  :: l
+\n   integer  :: m
+\n   integer  :: z
+\n   integer  :: index
+\n   integer  :: atom_index
+\n   character(len=40)  :: species
+\nend type orbital_id_t
+\n
+\npublic :: want_orbital
+\n
+\nCONTAINS
+\n
+\nfunction want_orbital(orbid) result(wantit)
+\ntype(orbital_id_t), intent(in)   :: orbid
+\nlogical                          :: wantit
+\n
+\n!
+\n!  Examples
+\n!  
+\n!  1. Want only s-orbitals
+\n!
+\n!     wantit = ( orbid%l == 0 )
+\n!
+\n!  2. Want only n=3 orbitals
+\n!
+\n!     wantit = ( orbid%n == 3 )
+\n!
+\n!  2. Want 3p orbitals
+\n!
+\n!     wantit = ( ( orbid%n == 3 ) .and. (orbid%l == 0 ) )
+\n!
+\n!  3. Want Oxygen orbitals
+\n!
+\n!     wantit = ( orbid%species == "O" )
+\n!
+\n!wantit = .true.
+\n!\n"
+m_orbital_file2="\nend function want_orbital
+\n
+end module m_orbital_chooser"
+echo -e $m_orbital_file1 > m_orbital_chooser.f90
+if [ $awn1 != "N" ] && [ $awn1 != "n" ]; then
+  wantit=`echo 'wantit = ( ( orbid%species == '"'${awn2}'"' )'`
+  if [ ${#l} -eq -0 ]; then
+    wantit+=`echo ' .and. ( orbid%n == '"${n}"' ) )'`
+  else	
+    wantit+=`echo ' .and. ( orbid%n == '"${n}"' ) .and. ( orbid%l == '"${ml}"' ) )'`
+  fi
+else
+  wantit=`echo 'wantit = ( orbid%species == '"'${specie_x}'"' )'`
+fi
+echo -e $wantit >> m_orbital_chooser.f90
+echo -e $m_orbital_file2 >> m_orbital_chooser.f90
+make
+
+if [ $awn1 != "N" ] && [ $awn1 != "n" ]; then
+   cp -a pdosxml pdosxml_${awn2}-${awn3}
+   pdosxml+=("pdosxml_${awn2}-${awn3}")
+   mv pdosxml_${awn2}-${awn3} $pasta
+else 
+   cp -a pdosxml pdosxml_${specie_x}
+   pdosxml+=("pdosxml_${specie_x}")
+   mv pdosxml_${specie_x} $pasta
+fi
+
+fi
+
+}
+
+# Function extract ml
+orbital()
+{
+  n=`echo $awn3 | cut -c1`
+  l=`echo $awn3 | cut -c2`
+  if [ ${#l} -eq 0 ]; then
+	m_orbital_chooser
+  elif [ $l == "s" ]; then
+    ml=0
+	m_orbital_chooser
+  elif [ $l == "p" ]; then 
+    ml=1
+	m_orbital_chooser
+  elif [ $l == "d" ]; then 
+    ml=2
+	m_orbital_chooser
+  elif [ $l == "f" ]; then 
+    ml=3
+	m_orbital_chooser
+  elif [ $l == "g" ]; then 
+    ml=4
+	m_orbital_chooser
+  elif [ $l == "h" ]; then 
+    ml=5
+	m_orbital_chooser
+  else	
+    echo "Sorry, invalid quantum number l"
+	return
+  fi
+}
+
+pasta=`echo $pdos | cut -f1 -d"."`
+mkdir $pasta
+
+echo -e "\nChemical species found in your file" $pdos":" ${species[*]}
+echo "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
+read awn1
+if [ $awn1 != "N" ] && [ $awn1 != "n" ];then
+   awn2="a"
+   while [ $awn2 != "0" ]; do
+      echo -e "\nChoose one of the chemical species: "${species[*]}  "(Type 0 for none)"
+      read awn2
+	  if [ $awn2 != "0" ]; then
+	    verify=$(verify_atom)
+	    if [ $verify -eq 0 ]; then
+	      echo "Enter the energy level or orbital for the chemical species "${awn2}". Ex.: 1, 2, 2s, 2p, 3, 3d, 4f...  "
+	      read awn3
+		  len=${#awn3}
+    	  if [ $len -ge 1 ] && [ $len -le 2 ] ;then
+		    orbital
+		  else
+		    echo -e "\nERROR: Invalid orbital/energy level"
+		  fi
+	    else 
+	      echo "\nERROR: Atom not found in your file " $pdos
+	    fi
+	fi
+   done
+else   
+  for ((i=0; i<${#species[*]}; i++)); do
+     specie_x=${species[$i]}
+     m_orbital_chooser
+  done  
+fi
+
+cp -a $pdos $pasta
+cp -a $bandas $pasta
+cd $pasta
+
+num=$((${#pdosxml[*]}-1))
+echo -e "\n"$num "pdosxml files will be used:" ${pdosxml[*]}
+
+echo -e "\nDo you want to customize your graph for xmgrace? (Y)Yes (N)No "
+read awn4
+if [ $awn4 != "N" ] && [ $awn4 != "n" ]; then
+X_min=99999999999
+X_max=0
+Y_min=99999999999
+Y_max=0
+while [ $X_min -ge $X_max ]; do 
+  echo "Choose the minimum value of X axis"
+  read -p "X_min: " X_min
+  echo "Choose the maximum value of X axis"
+  read -p "X_max: " X_max
+  if [ $X_min -ge  $X_max ];then
+    echo -e "\nERROR: X_min must be less than X_max"
+  fi
+done
+while [ $Y_min -ge $Y_max ]; do 
+  echo "Choose the minimum value of Y axis"
+  read -p "Y_min: " Y_min
+  echo "Choose the maximum value of Y axis"
+  read -p "Y_max: " Y_max
+  if [ $Y_min -ge  $Y_max ];then
+    echo -e "\nERROR: Y_min must be less than Y_max"
+  fi
+done  
+echo "Do you want to use the default colors? (Y)Yes (N)No"
+read awn5
+if [ $awn5 == "N" ] || [ $awn5 == "n" ]; then
+
+while [ ${#color_awns[*]} -lt $num ]; do 
+echo "Color Identifiers: 
+ color 1 - black
+ color 2 - red
+ color 3 - green
+ color 4 - blue
+ color 5 - yellow
+ color 6 - brown
+ color 7 - grey
+ color 8 - violet
+ color 9 - cyan
+ color 10 - magenta
+ color 11 - orange
+ color 12 - indigo
+ color 13 - maroon
+ color 14 - turquoise
+ color 15 - green4"
+echo -e "\nChoose the colors. (Choose "${num}" different colors):"
+read -p "Colors (Format: 1 2 3 4 5 )  " color_awn
+color_awns=($color_awn)
+if [ ${#color_awns[*]} -lt $num ]; then
+   echo -e "\nERROR: NUMBER of colors must be equal to NUMBER of pdosxml files. \nPlease add more colors!"
+else   
+   cor_linha=($color_awn)
+fi
+done
+fi
+fi
+
+#Function check repeated atom in atom_cut
+verify_atom_cut()
+{
+  atom_index=($awn7)
+  for ((i=0; i<${#atom_cut[*]}; i++)); do
+    if [ $atom_index -eq ${atom_cut[$i]} ];then
+	  i=$((${#atom_cut[*]}+1))
+	  echo 1
+	  return
+	fi
+  done
+  echo 0
+}
+
+add_atom_cut()
+{
+atom_index=($awn7)
+if [ $atom_index -ge 1 ] && [ $atom_index -le $atom_index_max ] && [ $atom_index -gt $atom_add_old ]; then
+  atom_cut+=($awn7)
+  atom_add_old=$awn7
+elif [ $atom_index -eq 0 ]; then  
+  atom_cut+=($awn7)
+else 
+  if [ $atom_index -gt $atom_add_old ]; then
+    echo -e "\nERROR: Entered atom does not exist in your file" $pdos"\n"
+  else
+    echo -e "\nERROR: The next atom number should be bigger than last atom\n"
+  fi
+fi
+}
+
+echo -e "\nDo you want to separate the PDOS from some atom? (Y)Yes (N)No "
+read awn6
+if [ $awn6 != "N" ] && [ $awn6 != "n" ]; then
+  atom_index_max=`grep atom_index $nome_pdos | cut -f2 -d'"' | sort | uniq | wc | awk '{print $1}'`
+  atom_add_old=0
+  awn7="a"
+  while [ $awn7 != "0" ]; do
+    if [ ${#atom_cut[*]} -eq 0 ]; then
+      read -p "What atom? (Enter its number or 0 for none): " awn7
+	  add_atom_cut
+	else
+      read -p "Any other atoms? (Enter its number or 0 for none): " awn7
+	  verify_cut=$(verify_atom_cut)
+	  if [ $verify_cut -eq 0 ];then
+	    add_atom_cut
+	  else	
+	    echo -e "\nERROR: This atom already have been chosen\n"
+	  fi 		
+    fi
+  done
+  
+  if [ ${atom_cut[0]} -ne 0 ]; then
+    linha_energy=`grep -n /energy_values  $pdos | tail -1 | cut -f1 -d":"`
+    linha_molecula=(`grep -n atom_index $pdos | grep ''${atom_cut[0]}'"' | head -n 1 | cut -f1 -d":"`)
+    linha_final=`wc $pdos | awk '{print $1}'`   
+    
+    linha_cut=$((${linha_molecula[0]}-3))
+    tail -n +1 $pdos | head -n $linha_cut > PDOS_cut.PDOS
+    echo "</pdos>" >> PDOS_cut.PDOS
+  
+    tail -n +1 $pdos | head -n $linha_energy > Molec0
+  
+    nome_pdos=(PDOS_cut.PDOS)
+    echo ${atom_cut[*]}
+    for ((a=1; a<${#atom_cut[*]}; a++)); do
+	  b=$(($a-1))
+	  c=$(($a+1))	  
+	  
+	  if [ ${atom_cut[$a]} -eq 0 ]; then
+	    linha_mol=$((${linha_molecula[$b]} - 2))
+		tail -n +$linha_mol $pdos | head -n $linha_final > Molec$a
+	  else 
+        linha_molecula+=(`grep -n atom_index $pdos | grep ''${atom_cut[$a]}'"' | head -n 1 | cut -f1 -d":"`)
+        linha_mol=$((${linha_molecula[$b]} - 2))
+  	    linha_cut_mol=$((${linha_molecula[$a]}-${linha_molecula[$b]}))
+	  
+	    tail -n +$linha_mol $pdos | head -n $linha_cut_mol > Molec$a
+	    echo "</pdos>" >> Molec$a    	  
+      fi		
+
+      paste -s -d '\n' Molec0 Molec$a > Mol_cut$a.PDOS
+      nome_pdos+=(Mol_cut$a.PDOS)	  
+    done
+	echo ${nome_pdos[*]}
+  fi	
+fi
+
+#Function change caption when repeat
+change_atom_leg()
+{
+for ((j=0; j<${#atom_leg[*]}; j++)); do
+  if [[ $atom_pdos == ${atom_leg[$j]} ]];then
+	if [[ ${atom_leg[$j]} != *"("* ]]; then   
+      atom_leg[$j]+="(1)"
+	fi
+  fi
+done
+}
+
+#Function check repeated caption
+verify_atom_leg()
+{
+count=0
+num_array=0
+for ((i=0; i<${#atom_leg[*]}; i++)); do
+  if [[ $atom_pdos == ${atom_leg[$i]} ]];then
+	count=$(($count+1))
+  else
+    verify2=`echo ${atom_leg[$i]} | cut -f1 -d"("`
+    if [[ $atom_pdos == $verify2 ]];then
+	  count=$(($count+1))
+	fi   
+  fi
+done  
+echo $count
+}
+
+if [ $spin -ne 1 ]; then
+  echo "Separating Spin UP and Spin Down"
+fi
+b=1
+for ((a=0; a<${#nome_pdos[*]}; a++))
+do
+  for ((i=1; i<=$num; i++)) 
+  do
+   atom_pdos=`echo ${pdosxml[$i]} | cut -f2 -d"_"`
+   verify=`grep 'species="'${atom_pdos} ${nome_pdos[$a]}`   
+   if [ ! -z "$verify" ]; then
+     ./${pdosxml[$i]} ${nome_pdos[$a]} > dado$b.dat
+	 if [ $spin -ne 1 ]; then
+       awk '{$3=$3*(-1);print}' dado$b.dat > dados$b.dat
+	 else  
+	   awk '{print $1" "$2}' dado$b.dat > dados$b.dat
+	 fi
+	 if [[ ${pdosxml[$i]} == *"-"* ]]; then  
+      cut1=`echo ${pdosxml[$i]} | cut -f2 -d"-"`   
+      atom_pdos=`echo ${atom_pdos}-${cut1}`
+     fi
+	 verify_atom_leg_repeat=$(verify_atom_leg)
+	 if [ $verify_atom_leg_repeat -ne 0 ]; then
+	   atom_leg_index=$(($verify_atom_leg_repeat+1))
+       atom_leg+=(`echo ${atom_pdos}"("${atom_leg_index}")"`)
+	   if [ $verify_atom_leg_repeat -eq 1 ]; then
+	     change_atom_leg
+	   fi
+	 else
+	   atom_leg+=(${atom_pdos})
+	 fi
+	 b=$(($b+1))
+   fi
+  done
+done
+
+if [ $awn6 != "N" ] && [ $awn6 != "n" ]; then
+  num=$(($b-1))
+fi
+
+resto=$(( $num % 2 ));
+echo "Joining files"
+if [ $resto -eq 0 ];
+ then
+     awk '{print " "$1" "}' dados1.dat > dadosx.dat
+     for ((i=1; $(($i+1))<=$num; i=$(($i+2)))) 
+     do 
+       j=$(($i+1))
+       join -o 1.2,1.3,2.2,2.3 dados$i.dat dados$j.dat  > mix$i.dat
+    done
+    mixfile=mix1.dat
+    if [ $num -gt 2 ]
+     then 
+       for ((i=3; $(($i+1))<=$num; i=$(($i+2)))) 
+       do 
+         mixfile=$mixfile" mix$i.dat"
+       done 
+       paste dadosx.dat $mixfile > mix.dat
+     else
+       paste dadosx.dat $mixfile > mix.dat
+     fi  
+  else
+    if [ $num -eq 1 ]
+     then
+       mv dados1.dat mix.dat
+     else
+       join -o 1.1,1.2,1.3,2.2,2.3 dados1.dat dados2.dat > dadosmix.dat
+       join -o 1.1,1.2,1.3,1.4,1.5,2.2,2.3 dadosmix.dat dados3.dat  > dadosx.dat
+       for ((i=4; $(($i+1))<=$num; i=$(($i+2)))) 
+       do 
+         j=$(($i+1))
+         join -o 1.2,1.3,2.2,2.3 dados$i.dat dados$j.dat  > mix$i.dat
+      done
+      mixfile=mix4.dat
+      if [ $num -ge 5 ]
+       then 
+         for ((i=6; $(($i+1))<=$num; i=$(($i+2)))) 
+         do 
+           mixfile=$mixfile" mix$i.dat"
+         done 
+         paste dadosx.dat $mixfile > mix.dat
+       else
+         if [ $num -eq 3 ]
+         then
+           mv dadosx.dat mix.dat
+         else
+           mv mix4.dat mix.dat
+         fi
+       fi
+     fi  
+fi
+echo "Generating 'PDOS.dat' and 'fermi_level.dat' files"
+mv mix.dat PDOS.dat
+sed -n -e '1p;$p' $nome_banda > fermi1.dat
+sed -i '2d' fermi1.dat
+if [ $spin -eq 1 ]; then
+  Y_min=0
+fi  
+awk -v n=$Y_min -v m=$Y_max '{print $1" "n;print $1" "m}' fermi1.dat > fermi_level.dat
+rm -rf mix* fermi1* dado*
+
+mv ../$pdos ../$pasta
+mv ../$bandas ../$pasta
+
+if [ $awn4 == "N" ] || [ $awn4 == "n" ];then
+  echo -e "\n_______________________________________\n"
+  for ((i=0; i<${#atom_leg[*]}; i++)); do      
+     echo $(($i+1))"º state: " ${atom_leg[$i]}
+  done 
+  echo -e "\n_______________________________________"
+  echo -e "\nCreated the folder" $pasta", in which your" $pdos "and" $bandas "files have been moved and generated your PDOS graph"
+  mv PDOS.dat PDOS1.dat
+  paste  -s -d '\n' PDOS1.dat fermi_level.dat > PDOS.dat
+  if [ $awn6 != "N" ] && [ $awn6 != "n" ]; then
+    cuts=`echo cut ${atom_cut[*]} | sed "s/ /_/g" | sed "s/_0//g"`
+	mv PDOS.dat PDOS-$cuts.dat
+	nome_dat=`echo PDOS"-"$cuts.dat`
+  else
+    nome_dat=PDOS.dat
+  fi
+  echo -e "If you want to plot in xmgrace, enter the folder" $pasta "and type the command: xmgrace -nxy" $nome_dat
+  echo -e "\nBy: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com"
+else
+
+echo "Creating a custom .agr file for xmgrace"
+texto_agr=`echo "# Grace project file
+\n#
+\n@version 50122
+\n@page size 960, 762
+\n@page scroll 5%
+\n@page inout 5%
+\n@link page off
+\n@map font 0 to aspasTimes-Romanaspas, aspasTimes-Romanaspas
+\n@map font 1 to aspasTimes-Italicaspas, aspasTimes-Italicaspas
+\n@map font 2 to aspasTimes-Boldaspas, aspasTimes-Boldaspas
+\n@map font 3 to aspasTimes-BoldItalicaspas, aspasTimes-BoldItalicaspas
+\n@map font 4 to aspasHelveticaaspas, aspasHelveticaaspas
+\n@map font 5 to aspasHelvetica-Obliqueaspas, aspasHelvetica-Obliqueaspas
+\n@map font 6 to aspasHelvetica-Boldaspas, aspasHelvetica-Boldaspas
+\n@map font 7 to aspasHelvetica-BoldObliqueaspas, aspasHelvetica-BoldObliqueaspas
+\n@map font 8 to aspasCourieraspas, aspasCourieraspas
+\n@map font 9 to aspasCourier-Obliqueaspas, aspasCourier-Obliqueaspas
+\n@map font 10 to aspasCourier-Boldaspas, aspasCourier-Boldaspas
+\n@map font 11 to aspasCourier-BoldObliqueaspas, aspasCourier-BoldObliqueaspas
+\n@map font 12 to aspasSymbolaspas, aspasSymbolaspas
+\n@map font 13 to aspasZapfDingbatsaspas, aspasZapfDingbatsaspas
+\n@map color 0 to (255, 255, 255), aspaswhiteaspas
+\n@map color 1 to (0, 0, 0), aspasblackaspas
+\n@map color 2 to (255, 0, 0), aspasredaspas
+\n@map color 3 to (0, 255, 0), aspasgreenaspas
+\n@map color 4 to (0, 0, 255), aspasblueaspas
+\n@map color 5 to (255, 255, 0), aspasyellowaspas
+\n@map color 6 to (188, 143, 143), aspasbrownaspas
+\n@map color 7 to (220, 220, 220), aspasgreyaspas
+\n@map color 8 to (148, 0, 211), aspasvioletaspas
+\n@map color 9 to (0, 255, 255), aspascyanaspas
+\n@map color 10 to (255, 0, 255), aspasmagentaaspas
+\n@map color 11 to (255, 165, 0), aspasorangeaspas
+\n@map color 12 to (114, 33, 188), aspasindigoaspas
+\n@map color 13 to (103, 7, 72), aspasmaroonaspas
+\n@map color 14 to (64, 224, 208), aspasturquoiseaspas
+\n@map color 15 to (0, 139, 0), aspasgreen4aspas
+\n@reference date 0
+\n@date wrap off
+\n@date wrap year 1950
+\n@default linewidth 1.0
+\n@default linestyle 1
+\n@default color 1
+\n@default pattern 1
+\n@default font 0
+\n@default char size 1.000000
+\n@default symbol size 1.000000
+\n@default sformat aspas%.8gaspas
+\n@background color 0
+\n@page background fill on
+\n@timestamp off
+\n@timestamp 0.03, 0.03
+\n@timestamp color 1
+\n@timestamp rot 0
+\n@timestamp font 0
+\n@timestamp char size 1.000000
+\n@timestamp def aspasWed Mar 20 15:09:06 2019aspas
+\n@r0 off
+\n@link r0 to g0
+\n@r0 type above
+\n@r0 linestyle 1
+\n@r0 linewidth 1.0
+\n@r0 color 1
+\n@r0 line 0, 0, 0, 0
+\n@r1 off
+\n@link r1 to g0
+\n@r1 type above
+\n@r1 linestyle 1
+\n@r1 linewidth 1.0
+\n@r1 color 1
+\n@r1 line 0, 0, 0, 0
+\n@r2 off
+\n@link r2 to g0
+\n@r2 type above
+\n@r2 linestyle 1
+\n@r2 linewidth 1.0
+\n@r2 color 1
+\n@r2 line 0, 0, 0, 0
+\n@r3 off
+\n@link r3 to g0
+\n@r3 type above
+\n@r3 linestyle 1
+\n@r3 linewidth 1.0
+\n@r3 color 1
+\n@r3 line 0, 0, 0, 0
+\n@r4 off
+\n@link r4 to g0
+\n@r4 type above
+\n@r4 linestyle 1
+\n@r4 linewidth 1.0
+\n@r4 color 1
+\n@r4 line 0, 0, 0, 0
+\n@g0 on
+\n@g0 hidden false
+\n@g0 type XY
+\n@g0 stacked false
+\n@g0 bar hgap 0.000000
+\n@g0 fixedpoint off
+\n@g0 fixedpoint type 0
+\n@g0 fixedpoint xy 0.000000, 0.000000
+\n@g0 fixedpoint format general general
+\n@g0 fixedpoint prec 6, 6
+\n@with g0
+\n@    world $X_min, $Y_min, $X_max, $Y_max
+\n@    stack world $X_min, $X_max, $Y_min, $Y_max
+\n@    znorm 1
+\n@    view 0.149510, 0.497549, 1.150000, 0.850000
+\n@    title aspasaspas
+\n@    title font 0
+\n@    title size 1.500000
+\n@    title color 1
+\n@    subtitle aspasaspas
+\n@    subtitle font 0
+\n@    subtitle size 1.000000
+\n@    subtitle color 1
+\n@    xaxes scale Normal
+\n@    yaxes scale Normal
+\n@    xaxes invert off
+\n@    yaxes invert off
+\n@    xaxis  on
+\n@    xaxis  type zero false
+\n@    xaxis  offset 0.000000 , 0.000000
+\n@    xaxis  bar on
+\n@    xaxis  bar color 1
+\n@    xaxis  bar linestyle 1
+\n@    xaxis  bar linewidth 1.0
+\n@    xaxis  label aspas${Label_X}aspas
+\n@    xaxis  label layout para
+\n@    xaxis  label place auto
+\n@    xaxis  label char size 1.000000
+\n@    xaxis  label font 0
+\n@    xaxis  label color 1
+\n@    xaxis  label place normal
+\n@    xaxis  tick on
+\n@    xaxis  tick major 1
+\n@    xaxis  tick minor ticks 1
+\n@    xaxis  tick default 6
+\n@    xaxis  tick place rounded true
+\n@    xaxis  tick in
+\n@    xaxis  tick major size 1.000000
+\n@    xaxis  tick major color 1
+\n@    xaxis  tick major linewidth 1.0
+\n@    xaxis  tick major linestyle 1
+\n@    xaxis  tick major grid off
+\n@    xaxis  tick minor color 1
+\n@    xaxis  tick minor linewidth 1.0
+\n@    xaxis  tick minor linestyle 1
+\n@    xaxis  tick minor grid off
+\n@    xaxis  tick minor size 0.500000
+\n@    xaxis  ticklabel on
+\n@    xaxis  ticklabel format general
+\n@    xaxis  ticklabel prec 5
+\n@    xaxis  ticklabel formula aspasaspas
+\n@    xaxis  ticklabel append aspasaspas
+\n@    xaxis  ticklabel prepend aspasaspas
+\n@    xaxis  ticklabel angle 0
+\n@    xaxis  ticklabel skip 0
+\n@    xaxis  ticklabel stagger 0
+\n@    xaxis  ticklabel place normal
+\n@    xaxis  ticklabel offset auto
+\n@    xaxis  ticklabel offset 0.000000 , 0.010000
+\n@    xaxis  ticklabel start type auto
+\n@    xaxis  ticklabel start 0.000000
+\n@    xaxis  ticklabel stop type auto
+\n@    xaxis  ticklabel stop 0.000000
+\n@    xaxis  ticklabel char size 1.000000
+\n@    xaxis  ticklabel font 0
+\n@    xaxis  ticklabel color 1
+\n@    xaxis  tick place both
+\n@    xaxis  tick spec type none
+\n@    yaxis  on
+\n@    yaxis  type zero false
+\n@    yaxis  offset 0.000000 , 0.000000
+\n@    yaxis  bar on
+\n@    yaxis  bar color 1
+\n@    yaxis  bar linestyle 1
+\n@    yaxis  bar linewidth 1.0
+\n@    yaxis  label aspas${Label_Y}aspas
+\n@    yaxis  label layout para
+\n@    yaxis  label place auto
+\n@    yaxis  label char size 1.000000
+\n@    yaxis  label font 0
+\n@    yaxis  label color 1
+\n@    yaxis  label place normal
+\n@    yaxis  tick off
+\n@    yaxis  tick major 20
+\n@    yaxis  tick minor ticks 1
+\n@    yaxis  tick default 6
+\n@    yaxis  tick place rounded true
+\n@    yaxis  tick in
+\n@    yaxis  tick major size 1.000000
+\n@    yaxis  tick major color 1
+\n@    yaxis  tick major linewidth 1.0
+\n@    yaxis  tick major linestyle 1
+\n@    yaxis  tick major grid off
+\n@    yaxis  tick minor color 1
+\n@    yaxis  tick minor linewidth 1.0
+\n@    yaxis  tick minor linestyle 1
+\n@    yaxis  tick minor grid off
+\n@    yaxis  tick minor size 0.500000
+\n@    yaxis  ticklabel off
+\n@    yaxis  ticklabel format general
+\n@    yaxis  ticklabel prec 5
+\n@    yaxis  ticklabel formula aspasaspas
+\n@    yaxis  ticklabel append aspasaspas
+\n@    yaxis  ticklabel prepend aspasaspas
+\n@    yaxis  ticklabel angle 0
+\n@    yaxis  ticklabel skip 0
+\n@    yaxis  ticklabel stagger 0
+\n@    yaxis  ticklabel place normal
+\n@    yaxis  ticklabel offset auto
+\n@    yaxis  ticklabel offset 0.000000 , 0.010000
+\n@    yaxis  ticklabel start type auto
+\n@    yaxis  ticklabel start 0.000000
+\n@    yaxis  ticklabel stop type auto
+\n@    yaxis  ticklabel stop 0.000000
+\n@    yaxis  ticklabel char size 1.000000
+\n@    yaxis  ticklabel font 0
+\n@    yaxis  ticklabel color 1
+\n@    yaxis  tick place both
+\n@    yaxis  tick spec type none
+\n@    altxaxis  off
+\n@    altyaxis  off
+\n@    legend on
+\n@    legend loctype view
+\n@    legend 0.6, 0.82
+\n@    legend box color 1
+\n@    legend box pattern 1
+\n@    legend box linewidth 1.0
+\n@    legend box linestyle 1
+\n@    legend box fill color 0
+\n@    legend box fill pattern 1
+\n@    legend font 0
+\n@    legend char size 0.840000
+\n@    legend color 1
+\n@    legend length 4
+\n@    legend vgap 1
+\n@    legend hgap 1
+\n@    legend invert false
+\n@    frame type 0
+\n@    frame linestyle 1
+\n@    frame linewidth 1.0
+\n@    frame color 1
+\n@    frame pattern 1
+\n@    frame background color 0
+\n@    frame background pattern 0"`
+
+texto_agr_extra=`echo "#QTGRACE_ADDITIONAL_PARAMETER: PLOT_ALPHA 255 255
+\n#QTGRACE_ADDITIONAL_PARAMETER: GRAPH_ALPHA G 0 {255;255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: AXIS_ALPHA G 0 A 0 {255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: AXIS_ALPHA G 0 A 1 {255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: AXIS_ALPHA G 0 A 2 {255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: AXIS_ALPHA G 0 A 3 {255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 0 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 0 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 0 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 0 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 0 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 1 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 1 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 1 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 1 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 1 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 2 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 2 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 2 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 2 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 2 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 3 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 3 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 3 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 3 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 3 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 4 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 4 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 4 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 4 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 4 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 5 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 5 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 5 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 5 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 5 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 6 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 6 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 6 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 6 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 6 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 7 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 7 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 7 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 7 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 7 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 8 POLYGONEBASESET -1
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 8 SHOWERRORBARINLEGEND 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 8 CONNECTERRORBARS 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 8 IGNOREINAUTOSCALE 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: G 0 S 8 ALPHA_CHANNELS {255;255;255;255;255;255}
+\n#QTGRACE_ADDITIONAL_PARAMETER: AUTOATTACH G 0 0 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: TITLE_SHIFT G 0 0 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: SUBTITLE_SHIFT G 0 0 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: VIEWPORT_NAME 0 0 aspasDefaultaspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT_RESET 1
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasTimes New Roman,10,-1,5,50,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasTimes New Roman,10,-1,5,50,1,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasTimes New Roman,10,-1,5,75,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasTimes New Roman,10,-1,5,75,1,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasHelvetica,10,-1,5,50,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasHelvetica,10,-1,5,50,1,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasHelvetica,10,-1,5,75,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasHelvetica,10,-1,5,75,1,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasCourier,10,-1,5,50,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasCourier,10,-1,5,50,1,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasCourier,10,-1,5,75,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasCourier,10,-1,5,75,1,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasSymbol,10,-1,5,50,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: QTFONT aspasZapf Dingbats,10,-1,5,50,0,0,0,0,0aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: ENCODING aspasUTF-8aspas
+\n#QTGRACE_ADDITIONAL_PARAMETER: UNIVERSAL_FONT_SIZE_FACTOR 1.0000
+\n#QTGRACE_ADDITIONAL_PARAMETER: TIMESTAMP_PATH 0
+\n#QTGRACE_ADDITIONAL_PARAMETER: LINESTYLES 9 {2;2;2;2;2;4;4;6;6} {{0;1},{1;0},{1;3},{5;3},{7;3},{1;3;5;3},{1;3;7;3},{1;3;5;3;1;3},{5;3;1;3;5;3}}"`
+
+textlinha1=`echo "@target G0.S0
+\n@type xy"`
+
+echo -e $texto_agr > PDOS.agr
+if [ $spin -ne 1 ]; then
+  numcol_max=$(($num*2))
+else
+  numcol_max=$num  
+fi
+for ((i=0; i<=$numcol_max; i++))
+do
+style[$i]=1
+  if [ $i -eq $numcol_max ];then
+      style[$i]=3
+  fi
+   echo -e "@    s$i hidden false
+@    s$i type xy
+@    s$i symbol 0
+@    s$i symbol size 1.000000
+@    s$i symbol color cor_linha${i}a
+@    s$i symbol pattern 1
+@    s$i symbol fill color cor_linha${i}a
+@    s$i symbol fill pattern 0
+@    s$i symbol linewidth 1.0
+@    s$i symbol linestyle 1
+@    s$i symbol char 65
+@    s$i symbol char font 0
+@    s$i symbol skip 0
+@    s$i line type 1
+@    s$i line linestyle ${style[$i]}
+@    s$i line linewidth 1.0
+@    s$i line color cor_linha${i}a
+@    s$i line pattern 1
+@    s$i baseline type 0
+@    s$i baseline off
+@    s$i dropline off
+@    s$i fill type 0
+@    s$i fill rule 0
+@    s$i fill color 1
+@    s$i fill pattern 1
+@    s$i avalue off
+@    s$i avalue type 2
+@    s$i avalue char size 1.000000
+@    s$i avalue font 0
+@    s$i avalue color 1
+@    s$i avalue rot 0
+@    s$i avalue format general
+@    s$i avalue prec 3
+@    s$i avalue prepend aspasaspas
+@    s$i avalue append aspasaspas
+@    s$i avalue offset 0.000000 , 0.000000
+@    s$i errorbar on
+@    s$i errorbar place both
+@    s$i errorbar color cor_linha${i}a
+@    s$i errorbar pattern 1
+@    s$i errorbar size 1.000000
+@    s$i errorbar linewidth 1.0
+@    s$i errorbar linestyle 1
+@    s$i errorbar riser linewidth 1.0
+@    s$i errorbar riser linestyle 1
+@    s$i errorbar riser clip off
+@    s$i errorbar riser clip length 0.100000
+@    s$i comment aspasaspas" >> PDOS.agr
+   if [ $i -gt 0 ]; then
+      echo -e "@    s$i legend  aspasaspas" >> PDOS.agr
+   fi
+done
+echo -e $texto_agr_extra >> PDOS.agr
+
+if [ $spin -ne 1 ]; then
+  numcol=$(($num*2 - 1))
+  numcolumn=$(($num*2 - 1))
+  variation=2
+else  
+  variation=1
+  numcol=$(($num - 1))
+  numcolumn=$num
+fi  
+
+numatom=1
+
+for ((i=0; i<$numcolumn; i=$(($i+$variation))))
+do
+   if [ $awn6 != "N" ] && [ $awn6 != "n" ]; then
+     #atomo[$numatom]=`echo ${pdosxml[$numatom]} | cut -d"_" -f2`
+     #echo Inserting subtitle for ${atomo[$numatom-1]}
+     #echo -e "@    s$i legend  aspas${atomo[$numatom-1]}aspas" >> PDOS.agr
+	 echo Inserting subtitle for ${atom_leg[$((numatom-1))]}
+     echo -e "@    s$i legend  aspas${atom_leg[$((numatom-1))]}aspas" >> PDOS.agr
+   else 
+     echo Inserting subtitle for ${atom_leg[$((numatom-1))]}
+     echo -e "@    s$i legend  aspas${atom_leg[$((numatom-1))]}aspas" >> PDOS.agr
+   fi
+   cor=$(($numatom-1))
+   sed -i "s/cor_linha${i}a/${cor_linha[$cor]}/g" PDOS.agr
+   if [ $spin -ne 1 ]; then
+     sed -i "s/cor_linha${j}a/${cor_linha[$cor]}/g" PDOS.agr
+   fi 
+   numatom=$(($numatom+1))
+   j=$(($i+1))
+   #Fermi level color
+   if [ $j -eq $numcolumn ];then   
+      k=$(($j+1))
+	  if [ $spin -ne 1 ]; then
+        sed -i "s/cor_linha${k}a/1/" PDOS.agr
+	  else	
+	    sed -i "s/cor_linha${j}a/1/" PDOS.agr
+      fi
+   fi
+done
+
+echo -e $textlinha1 >> PDOS.agr
+awk '{print $1" "$2}' PDOS.dat >> PDOS.agr
+sed -i 's/aspas/"/g' PDOS.agr
+
+for ((i=1; i<=$numcol; i=$(($i+1))))
+do
+   textlinhaoutros=`echo "&
+   \n@target G0.S$i
+   \n@type xy"`
+   echo -e $textlinhaoutros >> PDOS.agr
+   j=$(($i+2))
+   awk -v m=$j '{print $1" "$m}' PDOS.dat >> PDOS.agr
+   a=$i
+done   
+
+b=$(($numcol+1))
+textlinhaoutros=`echo "&
+   \n@target G0.S$b
+   \n@type xy"`
+echo -e $textlinhaoutros >> PDOS.agr
+awk '{print $1" "$2}' fermi_level.dat >> PDOS.agr
+if [ $awn6 != "N" ] && [ $awn6 != "n" ]; then
+  cuts=`echo cut ${atom_cut[*]} | sed "s/ /_/g" | sed "s/_0//g"`
+  nome_agr=`echo $pasta"-"$cuts`
+else
+  nome_agr=$pasta
+fi
+mv PDOS.agr PDOS-$nome_agr.agr
+echo "Plotting graph from file:" PDOS-$nome_agr.agr
+echo -e "By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com"
+xmgrace PDOS-$nome_agr.agr
+fi
