@@ -1,0 +1,97 @@
+#!/bin/bash
+
+#What does this script do?
+#This script will extract all the INITIAL COORDINATES from your .FDF or .OUT file into a .XYZ file, automatically!
+
+#REQUIRIMENTS:
+#-The pseudopotentials names must be in the form: atom, atom_gga or atom_lda, inside the "%block ChemicalSpeciesLabel".
+
+#USAGE:
+#./extract_coords filename.out or ./extract_coords filename.fdf
+
+#By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
+
+arquivo_fdf=$1
+ext=`echo $arquivo_fdf | cut -f2 -d"."`
+
+if [[ $arquivo_fdf == "*.fdf" || $arquivo_fdf == "*.out" ]];then
+  if [[ $arquivo_fdf == "*.fdf" ]]; then
+    fdf=(`find *.fdf`)
+    if [ ${#fdf[*]} -gt 1 ];then
+       echo -e "\nERROR: More than one .fdf file found. \nPlease enter the full filename or remove one of the .fdf files in this folder"
+  	   exit
+	elif [ ${#fdf[*]} -eq 0 ];then
+       echo -e "\nERROR: No .fdf files found"
+	   exit  
+    fi
+  fi
+  if [[ $arquivo_fdf == "*.out" ]]; then
+    out=(`find *.out`)
+    if [ ${#out[*]} -gt 1 ];then
+       echo -e "\nERROR: More than one .fdf file found. \nPlease enter full filename or remove one of the .out files in this folder"
+  	   exit
+	elif [ ${#out[*]} -eq 0 ];then
+       echo -e "\nERROR: No .out files found"
+	   exit  
+    fi
+  fi
+
+else
+  fdf=(`find $arquivo_fdf`)
+  if [ ${#fdf[*]} -eq 0 ];then
+     echo -e "\nERROR: File" $arquivo_fdf "not found."
+	 exit
+  fi
+  if [[ $ext == "fdf" || $ext == "out" ]]; then
+	echo "Generating the xyz file..."
+  else	
+	echo "Extension not supported. Use only .fdf or .out files"
+	echo "How to use: ./extract coords file.fdf or ./extract coords file.out"
+	exit
+  fi
+fi
+
+linha_coord1=`grep -n '%block AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1` 
+linha_coord2=`grep -n '%endblock AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1`
+coord1=$(($linha_coord1+1))
+coord2=$(($linha_coord2-$coord1))  
+tail -n +$coord1 $arquivo_fdf | head -n $coord2 > fdf
+
+echo Movendo coluna dos átomos
+awk '{print " "$1" "$2" "$3}' fdf > coordenadas1
+awk '{print " "$4" "}' fdf > coordenadas2
+
+
+chemicalspecies1=`grep -n ChemicalSpeciesLabel $arquivo_fdf | cut -f1 -d":" | head -n 1 | tail -1`
+chemicalspecies2=`grep -n ChemicalSpeciesLabel $arquivo_fdf | cut -f1 -d":" | head -n 2 | tail -1`
+quant=$(( $chemicalspecies2 - $chemicalspecies1 - 1 ))
+atomolinha=$(( $chemicalspecies1 + 1 ))
+
+for ((i=1; i<=$quant; i++)) 
+     do
+	 atomo[$i]=`head -n +$atomolinha $arquivo_fdf | tail -1 | awk '{print $3}' | cut -f1 -d"_"`
+	 atomo=${atomo[$i]}
+	   if [ $i -gt 1 ]; then
+	      for ((j=1; j<$i; j++)) 
+	      do
+			 atomo[$i]=`echo ${atomo[$i]} | sed 's/'${atomo[$j]}'/'$j'/'`
+	      done
+	   fi
+	   
+	   echo "Replacing" $i "by" $atomo 
+	   sed -i "s/$i/${atomo[$i]}/" coordenadas2
+	   atomolinha=$(( $atomolinha + 1 ))
+done
+paste coordenadas2 coordenadas1 > coordenada
+
+n_atoms=`grep NumberOfAtoms $arquivo_fdf | awk '{print $2}'`
+echo -e $n_atoms"\n" > n_atom
+
+paste -s -d "\n" n_atom coordenada > coordenadas
+
+fdf=`find $arquivo_fdf | cut -f1 -d"."`	 
+sed -e "s/\r//g" coordenadas > $ext-$fdf.xyz
+
+rm -rf coordenada* n_atom fdf
+
+echo -e "\nIt's Done! All INITIAL coordinates of file "$arquivo_fdf" have been moved to file: "$ext-$fdf.xyz
