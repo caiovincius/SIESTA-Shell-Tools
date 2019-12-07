@@ -46,7 +46,7 @@ else
 	echo "Generating the xyz file..."
   else	
 	echo "Extension not supported. Use only .fdf or .out files"
-	echo "How to use: ./extract coords file.fdf or ./extract coords file.out"
+	echo "How to use: ./extract_coords file.fdf or ./extract_coords file.out"
 	exit
   fi
 fi
