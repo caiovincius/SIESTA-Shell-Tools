@@ -1,0 +1,140 @@
+#!/bin/bash
+
+#O que este script faz?
+#Este script moverá as coordenadas dos átomos presentes no arquivo *.xyz, substituindo o nome do átomo pelo número do átomo presente no seu arquivo *.fdf, automaticamente!
+#REQUIREMENTS:
+#1-Só pode haver um único arquivo *.fdf e *.xyz na pasta em que o script estiver.
+#2-O nome dos pseudopotenciais presentes no bloco: "%block ChemicalSpeciesLabel" do seu arquivo *.fdf devem estar no formato Atomo_gga, Atomo_lda ou Atomo. Ex.: Fe_gga, Fe_lda ou Fe.
+
+#Para usar bastar abrir um terminal e executar ./script_coord_v1.3. Caso dê algum erro digite o seguinte o comando: chmod +x script_coord_v1.3 e depois tente executar o script novamente!
+
+#Informe o nome do seu arquivo .fdf
+arquivo_fdf=$1
+
+#Informe o nome do seu arquivo .xyz
+nome_xyz=$2
+
+#By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
+
+ext1=`echo $arquivo_fdf | cut -f2 -d"."`
+ext2=`echo $nome_xyz | cut -f2 -d"."`
+
+if [[ $arquivo_fdf == "*.fdf" || $nome_xyz == "*.xyz" ]];then
+  if [[ $arquivo_fdf == "*.fdf" ]]; then
+    fdf=(`find *.fdf`)
+    if [ ${#fdf[*]} -gt 1 ];then
+       echo -e "\nERROR: More than one .fdf file found. \nPlease enter the full filename or remove one of the .fdf files in this folder"
+  	   exit
+	elif [ ${#fdf[*]} -eq 0 ];then
+       echo -e "\nERROR: No .fdf files found"
+	   exit  
+    fi
+  fi
+
+  if [[ $nome_xyz == "*.xyz" ]]; then
+    xyz=(`find *.xyz`)
+    echo ${#xyz[*]}
+    if [ ${#xyz[*]} -gt 1 ];then
+       echo -e "\nERROR: More than one .xyz file found. \nPlease enter the full filename or remove one of the .xyz files in this folder"
+	   exit
+	elif [ ${#xyz[*]} -eq 0 ];then
+       echo -e "\nERROR: No .xyz files found"
+	   exit    
+    fi
+  fi
+else
+  fdf=(`find $arquivo_fdf`)
+  xyz=(`find $nome_xyz`)
+  if [ ${#fdf[*]} -eq 0 ];then
+     echo -e "\nERROR: No" $arquivo_fdf "found"
+	 exit
+  fi
+  if [ ${#xyz[*]} -eq 0 ];then
+     echo -e "\nERROR: No" $nome_xyz "found"
+	 exit
+  fi
+  if [[ $ext1 == "xyz" && $ext2 == "fdf" ]]; then
+		move=$arquivo_fdf
+		arquivo_fdf=$nome_xyz
+		nome_xyz=$move
+		echo "Moving the atoms column"		
+  elif [[ $ext1 == "fdf" && $ext2 == "xyz" ]]; then		
+		echo "Moving the atoms column"
+  else	
+	echo "Extension not supported. Use only .fdf or .xyz files"
+	echo -e "\nHow to use: ./script_coord file1.fdf file2.xyz \nAlternative mode: ./script_coord file1.xyz file2.fdf"
+	exit
+  fi
+fi
+
+
+awk '{print $2" "$3" "$4}' $nome_xyz > coordenadas1
+awk '{print " "$1" "}' $nome_xyz > coordenadas2
+paste coordenadas1 coordenadas2 > coordenada
+
+chemicalspecies1=`grep -n ChemicalSpeciesLabel $arquivo_fdf | cut -f1 -d":" | head -n 1 | tail -1`
+chemicalspecies2=`grep -n ChemicalSpeciesLabel $arquivo_fdf | cut -f1 -d":" | head -n 2 | tail -1`
+quant=$(( $chemicalspecies2 - $chemicalspecies1 - 1 ))
+atomolinha=$(( $chemicalspecies1 + 1 ))
+
+for ((i=1; i<=$quant; i++)) 
+     do
+	 atomo[$i]=`head -n +$atomolinha $arquivo_fdf | tail -1 | awk '{print $3}' | cut -f1 -d"_"`
+	 atomo=${atomo[$i]}
+	   if [ $i -gt 1 ]; then
+	      for ((j=1; j<$i; j++)) 
+	      do
+			 atomo[$i]=`echo ${atomo[$i]} | sed 's/'${atomo[$j]}'/'$j'/'`
+	      done
+	   fi
+	   
+	   echo "Replacing" $atomo "by" $i 
+	   sed -i "s/${atomo[$i]}/$i/" coordenada
+	   atomolinha=$(( $atomolinha + 1 ))
+done
+
+sed -i '1d' coordenada
+sed -i '1d' coordenada	 
+sed -e "s/\r//g" coordenada > coordenadas
+
+echo "Moving the xyz coordinates from ${nome_xyz} to the file ${arquivo_fdf}"
+total_linhas=`wc $arquivo_fdf | awk '{print $1}'`
+linha_coord1=`grep -n '%block AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1` 
+linha_coord2=`grep -n '%endblock AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1` 
+total_coord_linhas=`wc coordenadas | awk '{print $1}'`
+tail -n +1 $arquivo_fdf | head -n $linha_coord1 > fdf
+tail -n +1 coordenadas | head -n $total_coord_linhas >> fdf
+tail -n +$linha_coord2 $arquivo_fdf | head -n $total_linhas >> fdf
+
+nome_fdf=`find *.fdf | awk '{print $1}'`
+rm -rf coordenada* $arquivo_fdf
+mv fdf $nome_fdf
+
+nome_fdf_cut=`echo $nome_fdf | cut -f1 -d"."`
+echo -e "\nRename the SystemLabel with the .fdf filename ${nome_fdf_cut}? (Y)Yes (N)No"
+read awn1
+if [ $awn1 == "Y" ] || [ $awn1 == "y" ];then
+	label=`grep SystemLabel $arquivo_fdf | awk '{print $2}'`
+	sed -i "s/${label}/${nome_fdf_cut}/" $arquivo_fdf
+fi
+
+echo -e "\nChange the NumberOfAtoms in ${arquivo_fdf} with the correct number of atoms from ${nome_xyz}? (Y)Yes (N)No"
+read awn2
+if [ $awn2 == "Y" ] || [ $awn2 == "y" ];then
+	num_atom=`grep NumberOfAtoms $arquivo_fdf`
+	num_atom_cut=`echo $num_atom | awk '{print $1}'`
+	n_atom=`head -n +1 *.xyz | tail -1 | cut -c-2`
+	n_atoms=`echo $num_atom_cut  $n_atom`
+	sed -i "s/${num_atom}/${n_atoms}/" $arquivo_fdf
+fi
+
+echo -e "\nChange the NumberOfSpecies in ${arquivo_fdf} with the correct number of species from ${nome_xyz}? (Y)Yes (N)No"
+read awn3
+if [ $awn3 == "Y" ] || [ $awn3 == "y" ];then
+	num_species=`grep NumberOfSpecies $arquivo_fdf`
+	num_species_cut=`echo $num_species | awk '{print $1}'`
+	n_species=`echo $num_species_cut  $quant`
+	sed -i "s/${num_species}/${n_species}/" $arquivo_fdf
+fi
+
+echo -e "\nIt's Done! All of your coordinates from "$nome_xyz" have been moved to file: "$arquivo_fdf
