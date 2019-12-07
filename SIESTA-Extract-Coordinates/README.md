@@ -10,4 +10,4 @@ A easy tool to extract the initial coordinates of your input (.fdf) or output (.
 3. Type in the terminal: ./extract_coords filename.out or ./extract_coords filename.fdf
 
 ## Extras
-- If you put the script in your PATH, you can do that in any folder without need to copy the file every time you want to use it.
+If you put this script in your Linux PATH, you can use it as a command in any folder, without need to copy it.
