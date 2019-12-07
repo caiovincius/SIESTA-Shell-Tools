@@ -27,5 +27,5 @@ If you choose Yes, the number of atomic species inside the .xyz file will be pla
 "Rename the .fdf filename with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
 If you choose Yes, the .fdf filname will be renamed with the .xyz filename.
 
-## Extra
+## Extras
 If you put this script in your Linux PATH, you can use it as a command in any folder, without need to copy it.
