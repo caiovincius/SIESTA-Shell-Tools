@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#O que este script faz?
+#O que este script faz? 
 #Este script moverá as coordenadas dos átomos presentes no arquivo *.xyz, substituindo o nome do átomo pelo número do átomo presente no seu arquivo *.fdf, automaticamente!
 #REQUIREMENTS:
 #1-Só pode haver um único arquivo *.fdf e *.xyz na pasta em que o script estiver.
