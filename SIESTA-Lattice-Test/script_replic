@@ -1,0 +1,333 @@
+#!/bin/bash
+
+#WHAT DOES THIS SCRIPT DO? 
+#This script will replicate your structure in the directions you choose. To do this, simply 
+
+#HOW TO USE?
+#Copy this script to your .xyz file folder.
+#And enter the correct lattice information of your structure (LatticeConstant and LatticeVectors).
+#In terminal, type the command: ./script_replic filename.xyz
+#If any error occurs, type the following command: chmod +x script_replic
+
+#Don't change the code below!
+#By: Caio Vinícius Caetano Ribeiro da Silva - caioviniciuscaetano@hotmail.com
+
+
+nome_xyz=$1
+if [[ $nome_xyz == "*.xyz" ]]; then
+    xyz=(`find *.xyz`)
+    echo ${#xyz[*]}
+    if [ ${#xyz[*]} -gt 1 ];then
+       echo -e "\nERROR: More than one .xyz file found. \nPlease enter the full filename or remove one of the .xyz files in this folder"
+	   exit
+	elif [ ${#xyz[*]} -eq 0 ];then
+       echo -e "\nERROR: No .xyz files found"
+	   exit    
+    fi
+fi
+ext1=`echo $nome_xyz | cut -f2 -d"."`
+xyz=(`find $nome_xyz`)
+if [ ${#xyz[*]} -eq 0 ];then
+   echo -e "\nERROR: No" $nome_xyz "found"
+   exit
+fi
+if [[ $ext1 != "xyz" ]]; then
+	echo "Extension not supported. Use only .xyz files"
+	echo -e "\nHow to use: ./script_replic filename.xyz"
+	exit
+fi
+
+while :
+do
+  echo -e "\nEnter the LatticeConstant of your structure:"
+  read awn1
+  len=${#awn1}
+  testvar=$(echo "$awn1" |  tr -c '0-9.' '\n')   # remove non-numeric chars from $awn1
+  if [[ $len -ne ${#testvar} ]] ; then  # if you had all numeric chars they would be the same length
+    echo "$awn1 is not a number"  # error message
+  else
+	constante_rede=$awn1
+    break      #exit the loop
+  fi
+done
+
+while :
+do
+  echo -e "\nEnter the 1st LatticeVector of your structure:"
+  a=0
+  read awn2
+  vet_verify=($awn2)
+  for (( i=0; i<${#vet_verify[*]}; ++i )); do
+	len=${#vet_verify[$i]}
+	testvar=$(echo "${vet_verify[$i]}" | tr -c '0-9.' '\n')   # remove non-numeric chars from $awn2
+	if [[ $len -ne ${#testvar} ]]; then  # if you had all numeric chars they would be the same length
+		echo "${vet_verify[$i]} is not a number"  # error message
+		++a
+	fi
+  done	
+  if [ $a -eq 0 ]; then
+	vet1=($awn2)
+		if [[ ${#vet1[*]} -gt 3 ]]; then
+			echo -e "\nERROR: The vector cannot have more than 3 elements"
+			exit
+		elif [[ ${#vet1[*]} -eq 3 ]]; then
+			break
+		fi
+	fi
+         #exit the loop
+done
+
+
+while :
+do
+  echo -e "\nEnter the 2nd LatticeVector of your structure:"
+  a=0
+  read awn3
+  vet_verify=($awn3)
+  for (( i=0; i<${#vet_verify[*]}; ++i )); do
+	len=${#vet_verify[$i]}
+	testvar=$(echo "${vet_verify[$i]}" | tr -c '0-9.' '\n')   # remove non-numeric chars from $awn3
+	if [[ $len -ne ${#testvar} ]]; then  # if you had all numeric chars they would be the same length
+		echo "${vet_verify[$i]} is not a number"  # error message
+		++a
+	fi
+  done	
+  if [ $a -eq 0 ]; then
+	vet2=($awn3)
+		if [[ ${#vet2[*]} -gt 3 ]]; then
+			echo -e "\nERROR: The vector cannot have more than 3 elements"
+			exit
+		elif [[ ${#vet2[*]} -eq 3 ]]; then
+			break
+		fi
+	fi
+         #exit the loop
+done
+
+while :
+do
+  echo -e "\nEnter the 3rd LatticeVector of your structure:"
+  a=0
+  read awn3
+  vet_verify=($awn3)
+  for (( i=0; i<${#vet_verify[*]}; ++i )); do
+	len=${#vet_verify[$i]}
+	testvar=$(echo "${vet_verify[$i]}" | tr -c '0-9.' '\n')   # remove non-numeric chars from $awn3
+	if [[ $len -ne ${#testvar} ]]; then  # if you had all numeric chars they would be the same length
+		echo "${vet_verify[$i]} is not a number"  # error message
+		++a
+	fi
+  done	
+  if [ $a -eq 0 ]; then
+	vet3=($awn3)
+		if [[ ${#vet3[*]} -gt 3 ]]; then
+			echo -e "\nERROR: The vector cannot have more than 3 elements"
+			exit
+		elif [[ ${#vet3[*]} -eq 3 ]]; then
+			break
+		fi
+	fi
+         #exit the loop
+done
+
+
+while :
+do
+  echo -e "\nHome many times do you want to replicate in the direction X?"
+  read awn5
+  len=${#awn5}
+  testvar=$(echo "$awn5" | tr -c '0-9.' '\n')    # remove non-numeric chars from $awn5
+  if [[ $len -ne ${#testvar} ]] ; then  # if you had all numeric chars they would be the same length
+    echo "$awn5 is not a INTEGER number"  # error message
+  else
+	replic_x=$awn5
+    break      #exit the loop
+  fi
+done
+
+while :
+do
+  echo -e "\nHome many times do you want to replicate in the direction Y?"
+  read awn6
+  len=${#awn6}
+  testvar=$(echo "$awn6" |  tr -c '0-9' '\n')   # remove non-numeric chars from $awn6
+  if [[ $len -ne ${#testvar} ]] ; then  # if you had all numeric chars they would be the same length
+    echo "$awn6 is not a INTEGER number"  # error message
+  else
+	replic_y=$awn6
+    break      #exit the loop
+  fi
+done
+
+while :
+do
+  echo -e "\nHome many times do you want to replicate in the direction Z?"
+  read awn7
+  len=${#awn7}
+  testvar=$(echo "$awn7" |  tr -c '0-9' '\n')   # remove non-numeric chars from $awn7
+  if [[ $len -ne ${#testvar} ]] ; then  # if you had all numeric chars they would be the same length
+    echo "$awn5 is not a INTEGER number"  # error message
+  else
+	replic_z=$awn7
+    break      #exit the loop
+  fi
+done
+
+file=`find $nome_xyz | awk '{print $1}'`
+replic_xyz=`echo "replic_"$file`
+echo Creating the file $replic_xyz
+tail -n +3 $nome_xyz | awk '{print $1" "$2" "$3" "$4}' > repli
+number_line=`cat -n repli | tail -1 |awk '{print $1}'` 
+number_replic=`echo $number_line $replic_x $replic_y $replic_z | awk '{printf "%f", $1 * (($2 + 1) * ($3 + 1) * ($4 + 1))}' | cut -f1 -d"."`
+echo -e $number_replic "\n" > $replic_xyz
+sed -e "s/\r//g" repli >> replic
+
+echo Calculating vectors
+vetor=(0 0 0)
+if [ $replic_x -ne 0 ]
+then
+for ((j=1; j<=$replic_x; ++j))
+ do
+  calc1=`echo $constante_rede $j | awk '{printf "%f", $1 * $2}'`
+  v1=`echo ${vet1[0]} $calc1 | awk '{printf "%f", $1 * $2}'`
+  v2=`echo ${vet1[1]} $calc1 | awk '{printf "%f", $1 * $2}'`
+  v3=`echo ${vet1[2]} $calc1 | awk '{printf "%f", $1 * $2}'`
+  vetor+=($v1 $v2 $v3)
+ done
+fi
+if [ $replic_y -ne 0 ]
+then
+for ((j=1; j<=$replic_y; ++j))
+ do
+   calc1=`echo $constante_rede $j | awk '{printf "%f", $1 * $2}'`
+   v1=`echo ${vet2[0]} $calc1 | awk '{printf "%f", $1 * $2}'`
+   v2=`echo ${vet2[1]} $calc1 | awk '{printf "%f", $1 * $2}'`
+   v3=`echo ${vet2[2]} $calc1 | awk '{printf "%f", $1 * $2}'`
+   vetor+=($v1 $v2 $v3)
+ done
+fi
+if [ $replic_z -ne 0 ]
+then
+for ((j=1; j<=$replic_z; ++j))
+ do
+  calc1=`echo $constante_rede $j | awk '{printf "%f", $1 * $2}'`
+  v1=`echo ${vet3[0]} $calc1 | awk '{printf "%f", $1 * $2}'`
+  v2=`echo ${vet3[1]} $calc1 | awk '{printf "%f", $1 * $2}'`
+  v3=`echo ${vet3[2]} $calc1 | awk '{printf "%f", $1 * $2}'`
+  vetor+=($v1 $v2 $v3)
+ done
+fi
+
+xy=0
+xz=0
+yz=0
+xyz=0
+
+  if [ $replic_x -ne 0 ] && [ $replic_z -ne 0 ]; then 
+        for ((x=1; x<=$replic_x; ++x))
+        do
+          calc1=`echo $constante_rede $x | awk '{printf "%f", $1 * $2}'`
+	      for ((z=1; z<=$replic_z; ++z))
+          do
+	        calc2=`echo $constante_rede $z | awk '{printf "%f", $1 * $2}'`
+		    v1=`echo ${vet1[0]} ${vet3[0]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            v2=`echo ${vet1[1]} ${vet3[1]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            v3=`echo ${vet1[2]} ${vet3[2]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            vetor+=($v1 $v2 $v3)
+			((++xz))
+	      done
+       done 
+    fi	   
+  if [ $replic_x -ne 0 ] && [ $replic_y -ne 0 ]; then
+       for ((x=1; x<=$replic_x; ++x))
+       do
+          calc1=`echo $constante_rede $x | awk '{printf "%f", $1 * $2}'`
+	      for ((y=1; y<=$replic_y; ++y))
+          do
+	        calc2=`echo $constante_rede $y | awk '{printf "%f", $1 * $2}'`
+		    v1=`echo ${vet1[0]} ${vet2[0]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            v2=`echo ${vet1[1]} ${vet2[1]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            v3=`echo ${vet1[2]} ${vet2[2]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            vetor+=($v1 $v2 $v3)
+			((++xy))
+	      done
+       done  	 
+  fi
+  if [ $replic_y -ne 0 ] && [ $replic_z -ne 0 ]; then
+     for ((y=1; y<=$replic_y; ++y))
+       do
+	   
+          calc1=`echo $constante_rede $y | awk '{printf "%f", $1 * $2}'`
+	      for ((z=1; z<=$replic_z; ++z))
+          do
+	        calc2=`echo $constante_rede $z | awk '{printf "%f", $1 * $2}'`
+		    v1=`echo ${vet2[0]} ${vet3[0]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            v2=`echo ${vet2[1]} ${vet3[1]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            v3=`echo ${vet2[2]} ${vet3[2]} $calc1 $calc2 | awk '{printf "%f", ($1 * $3)+($2 * $4)}'`
+            vetor+=($v1 $v2 $v3)
+			((++yz))
+	      done
+     done 
+   fi  
+   if [ $replic_x -ne 0 ] && [ $replic_y -ne 0 ]  && [ $replic_z -ne 0 ]; then
+	    for ((x=1; x<=$replic_x; ++x))
+        do
+          calc1=`echo $constante_rede $x | awk '{printf "%f", $1 * $2}'`
+	      for ((y=1; y<=$replic_y; ++y))
+          do
+		     calc2=`echo $constante_rede $y | awk '{printf "%f", $1 * $2}'`
+		     for ((z=1; z<=$replic_z; ++z))
+             do
+	           calc3=`echo $constante_rede $z | awk '{printf "%f", $1 * $2}'`
+		       v1=`echo ${vet1[0]} ${vet2[0]} ${vet3[0]} $calc1 $calc2 $calc3 | awk '{printf "%f", ($1 * $4)+($2 * $5)+($3 * $6)}'`
+               v2=`echo ${vet1[1]} ${vet2[1]} ${vet3[1]} $calc1 $calc2 $calc3 | awk '{printf "%f", ($1 * $4)+($2 * $5)+($3 * $6)}'`
+               v3=`echo ${vet1[2]} ${vet2[2]} ${vet3[2]} $calc1 $calc2 $calc3 | awk '{printf "%f", ($1 * $4)+($2 * $5)+($3 * $6)}'`
+               vetor+=($v1 $v2 $v3)
+			   ((++xyz))
+			 done  
+	      done
+      done  
+    fi
+echo $(( ${#vetor[*]} / 3 )) vectors will be used
+
+v1=`echo ${vet1[0]} ${vet2[0]} ${vet3[0]} | awk '{printf "%f", $1 + $2 + $3}'`
+v2=`echo ${vet1[1]} ${vet2[1]} ${vet3[1]} | awk '{printf "%f", $1 + $2 + $3}'`
+v3=`echo ${vet1[2]} ${vet2[2]} ${vet3[2]} | awk '{printf "%f", $1 + $2 + $3}'`
+
+a=$replic_x
+b=$replic_y
+c=$replic_z
+
+echo Replicating the structure...
+for ((k=0; k<${#vetor[*]}; k=$(($k+3))))
+do
+ if [ $k -ge 3 ]; then
+  if [ $a -ne 0 ]; then
+     a=$(($a-1))
+	 echo Replicating in the direction X...
+  elif [ $b -ne 0 ]; then
+     b=$(($b-1)) 
+	 echo Replicating in the direction Y...
+  elif [ $c -ne 0 ]; then
+     c=$(($c-1))  
+	 echo Replicating in the direction Z...	
+  elif [ $xyz -ne 0 ]; then
+     xyz=$(($xyz-1))  
+	 echo Replicating in the directions X, Y e Z...	
+  elif [ $xz -ne 0 ]; then
+     xz=$(($xz-1)) 
+	 echo Replicating in the directions X e Z...	
+  elif [ $xy -ne 0 ]; then
+     xy=$(($xy-1))
+	 echo Replicating in the directions X e Y...		 
+  elif [ $yz -ne 0 ]; then
+     yz=$(($yz-1))
+	 echo Replicating in the directions Y e Z...	 
+  fi
+ fi 
+ awk -v n="${vetor[$k]}" -v m="${vetor[$((k+1))]}" -v o="${vetor[$((k+2))]}" '{$2=sprintf("%.8f",$2+n);;$3=sprintf("%.8f",$3+m);$4=sprintf("%.8f",$4+o);print}' replic >> $replic_xyz
+done  
+  
+rm -rf replic repli
+
+echo -e "\nIt's Done! The replicated structure was saved in the file ${replic_xyz}"
