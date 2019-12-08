@@ -12,5 +12,6 @@ It calculates the band-gap energy through the .bands file. If you have many .ban
 ## Options
 
 "Do you want verify if the band-gap is direct or indirect (EXPERIMENTAL)? (Y)Yes (N)No"
+
 If you choose yes, the script will try to verify if the band-gap is direct or indirect. BUT, this is a EXPERIMENTAL section, sometimes it will show the wrong awnser. In the future, we will try to improve the algorithm to get a better precision in differentiating a direct gap from a indirect gap. Nevertheless, this script will calculate the band-gap in a very precise way.
 
