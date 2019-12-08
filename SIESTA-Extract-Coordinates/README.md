@@ -7,8 +7,8 @@ A easy tool to extract the initial coordinates of your input (.fdf) or output (.
 ## **How to use?**
 1. Put the extract_coords at the same folder of your .out or .fdf file that you want to extract the coordinates.
 2. In the first time you use this script, type the following command before: chmod +x extract_coords
-3. Type in the terminal: ./extract_coords filename.out --options
-./extract_coords filename.fdf
+3. Type in the terminal: ./extract_coords filename.fdf
+4. Or type: ./extract_coords filename.out --options
 
 ## OPTIONS
 -     --initial or -i: Extract the initial coordinates from the .out file.
