@@ -7,11 +7,73 @@
 #-The pseudopotentials names must be in the form: atom, atom_gga or atom_lda, inside the "%block ChemicalSpeciesLabel".
 
 #USAGE:
-#./extract_coords filename.out or ./extract_coords filename.fdf
+#./extract_coords filename.out --converged
+#./extract_coords filename.fdf
+#./extract_coords filename.out --initial
 
 #By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
 
-arquivo_fdf=$1
+helpFunction()
+{
+   echo ""
+   echo "Usage: $0 -a parameterA -b parameterB -c parameterC"
+   echo -e "\t-a Description of what is parameterA"
+   echo -e "\t-b Description of what is parameterB"
+   echo -e "\t-c Description of what is parameterC"
+   exit 1 # Exit script after printing help
+}
+
+if [[ -z $2 ]]; then
+
+ext1=`echo $1 | cut -f2 -d"."`
+if [[ ${#ext1} -eq 3 ]]; then
+	arquivo_fdf=$1
+fi
+
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  -V | --version )
+    echo 1.1
+    exit
+    ;;
+  -i | --initial )
+    shift; cooordinate=0
+    ;;
+  -c | --converged )
+    shift; cooordinate=1
+    ;;
+   -h | --help )
+	helpFunction ;;
+esac; shift; done
+if [[ "$1" == '--' ]]; then shift; fi
+
+else
+
+ext1=`echo $1 | cut -f2 -d"."`
+ext2=`echo $2 | cut -f2 -d"."`
+if [[ ${#ext1} -eq 3 ]]; then
+	arquivo_fdf=$1
+elif [[ ${#ext2} -eq 3 ]]; then
+	arquivo_fdf=$2	
+fi
+
+while [[ "$2" =~ ^- && ! "$2" == "--" ]]; do case $2 in
+  -V | --version )
+    echo 1.1
+    exit
+    ;;
+  -i | --initial )
+    shift; cooordinate=0
+    ;;
+  -c | --converged )
+    shift; cooordinate=1
+    ;;
+   -h | --help )
+	helpFunction ;;
+esac; shift; done
+if [[ "$2" =~ '-' ]]; then shift; fi
+
+fi
+
 ext=`echo $arquivo_fdf | cut -f2 -d"."`
 
 if [[ $arquivo_fdf == "*.fdf" || $arquivo_fdf == "*.out" ]];then
@@ -43,7 +105,28 @@ else
 	 exit
   fi
   if [[ $ext == "fdf" || $ext == "out" ]]; then
-	echo "Generating the xyz file..."
+	if [ $ext == "fdf" ]; then
+		initial=1
+		converged=0
+		echo "Generating the INITIAL xyz file..."
+	fi
+	if [ $ext == "out" ]; then
+		if [[ -z $cooordinate ]]; then
+			echo "You need to specify if you want extract the initial or converged coordinates of the ${arquivo_fdf}"
+			echo "How to use:"
+			echo "./extract_coords file.out --initial"
+			echo "./extract_coords file.out --converged"
+			exit
+		elif [[ $cooordinate -eq 0 ]]; then	
+			initial=1
+			converged=0
+			echo "Generating the INITIAL xyz file..."
+		elif [[ $cooordinate -eq 1 ]]; then
+			initial=0
+			converged=1
+			echo "Generating the CONVERGED xyz file..."
+		fi
+	fi
   else	
 	echo "Extension not supported. Use only .fdf or .out files"
 	echo "How to use: ./extract_coords file.fdf or ./extract_coords file.out"
@@ -51,13 +134,21 @@ else
   fi
 fi
 
-linha_coord1=`grep -n '%block AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1` 
-linha_coord2=`grep -n '%endblock AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1`
-coord1=$(($linha_coord1+1))
-coord2=$(($linha_coord2-$coord1))  
-tail -n +$coord1 $arquivo_fdf | head -n $coord2 > fdf
+if [ $initial -eq 1 ]; then
+	linha_coord1=`grep -n '%block AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1` 
+	linha_coord2=`grep -n '%endblock AtomicCoordinatesAndAtomicSpecies' $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1`
+	coord1=$(($linha_coord1+1))
+	coord2=$(($linha_coord2-$coord1))  
+	tail -n +$coord1 $arquivo_fdf | head -n $coord2 > fdf
+elif [ $converged -eq 1 ]; then
+	linha_coord1=`grep -n outcoor $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1` 
+	linha_coord2=`grep -n coxmol $arquivo_fdf | awk '{print $1}' | cut -f1 -d":" | tail -1`
+	coord1=$(($linha_coord1+1))
+	coord2=$(($linha_coord2-$coord1-1))  
+	tail -n +$coord1 $arquivo_fdf | head -n $coord2 > fdf		
+fi
 
-echo Movendo coluna dos átomos
+echo Moving atoms column
 awk '{print " "$1" "$2" "$3}' fdf > coordenadas1
 awk '{print " "$4" "}' fdf > coordenadas2
 
@@ -90,8 +181,13 @@ echo -e $n_atoms"\n" > n_atom
 paste -s -d "\n" n_atom coordenada > coordenadas
 
 fdf=`find $arquivo_fdf | cut -f1 -d"."`	 
-sed -e "s/\r//g" coordenadas > $ext-$fdf.xyz
+
+if [ $initial -eq 1 ]; then
+	sed -e "s/\r//g" coordenadas > initial-$fdf.xyz
+	echo -e "\nIt's Done! All INITIAL coordinates of file "$arquivo_fdf" have been moved to file: "initial-$fdf.xyz
+elif [ $converged -eq 1 ]; then
+	sed -e "s/\r//g" coordenadas > converged-$fdf.xyz
+	echo -e "\nIt's Done! All CONVERGED coordinates of file "$arquivo_fdf" have been moved to file: "converged-$fdf.xyz
+fi
 
 rm -rf coordenada* n_atom fdf
-
-echo -e "\nIt's Done! All INITIAL coordinates of file "$arquivo_fdf" have been moved to file: "$ext-$fdf.xyz
