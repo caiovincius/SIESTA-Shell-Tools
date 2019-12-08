@@ -8,18 +8,15 @@
 
 #USAGE:
 #./extract_coords filename.out --converged
-#./extract_coords filename.fdf
 #./extract_coords filename.out --initial
+#./extract_coords filename.fdf
 
 #By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
 
 helpFunction()
 {
-   echo ""
-   echo "Usage: $0 -a parameterA -b parameterB -c parameterC"
-   echo -e "\t-a Description of what is parameterA"
-   echo -e "\t-b Description of what is parameterB"
-   echo -e "\t-c Description of what is parameterC"
+   echo -e "Usage:\n./extract_coords filename.out --converged\n./extract_coords filename.out --initial\n./extract_coords filename.fdf"
+   echo -e "OPTIONS:\n--initial or -i: Extract the initial coordinates from the .out file.\n--converged or -c: Extract the converged coordinates from the .out file.\n--version or -v: Show the version.\n--help or -h: Show the help."
    exit 1 # Exit script after printing help
 }
 
@@ -31,7 +28,7 @@ if [[ ${#ext1} -eq 3 ]]; then
 fi
 
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-  -V | --version )
+  -v | --version )
     echo 1.1
     exit
     ;;
