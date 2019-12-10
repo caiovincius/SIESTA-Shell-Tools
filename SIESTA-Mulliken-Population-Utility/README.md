@@ -4,7 +4,7 @@ An easy tool to calculate Mulliken Population in many customized ways for SIESTA
 ## WHAT DOES THIS TOOL DO:
 It calculates the Mulliken Population for each atom specie from the .out file generated in calculations using SIESTA.
 
-USAGE:
+## USAGE:
 - Copy this script to the .out file folder.
 - Type in therminal: ./calc_pop filename.out --options
 - If you get any error, type: chmod +x calc_pop
