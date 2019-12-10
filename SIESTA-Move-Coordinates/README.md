@@ -15,16 +15,20 @@ A easy way to move all the coordinates from a .xyz file to the input of SIESTA (
 6. After that, the coordinates will be moved to the .fdf file, and then, some more options will appear (They are explained below).
 
 ## Options
-"Rename the SystemLabel with the .xyz filename? (Y)Yes (N)No"
+- "Rename the SystemLabel with the .xyz filename? (Y)Yes (N)No"
+
 If you choose Yes, the .xyz filename will be placed as the SystemLabel of the .fdf file.
 
-"Change the NumberOfAtoms in filename.fdf with the correct number of atoms from filename.xyz? (Y)Yes (N)No"
+- "Change the NumberOfAtoms in filename.fdf with the correct number of atoms from filename.xyz? (Y)Yes (N)No"
+
 If you choose Yes, the number of atoms inside the .xyz file will be placed as the value of the NumberOfAtoms of the .fdf file.
 
-"Change the NumberOfSpecies in filename.fdf with the correct number of species from filename.xyz? (Y)Yes (N)No"
+- "Change the NumberOfSpecies in filename.fdf with the correct number of species from filename.xyz? (Y)Yes (N)No"
+
 If you choose Yes, the number of atomic species inside the .xyz file will be placed as the value of the NumberOfSpecies of the .fdf file.
 
-"Rename the .fdf filename with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
+- "Rename the .fdf filename with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
+
 If you choose Yes, the .fdf filname will be renamed with the .xyz filename.
 
 ## Extras
