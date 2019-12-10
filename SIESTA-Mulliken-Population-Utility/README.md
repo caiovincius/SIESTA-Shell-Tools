@@ -11,7 +11,7 @@ USAGE:
 
 ## OPTIONS:
 - -u or --until: Calculate the Mulliken Population until the specified atom number in the system.
-- #-s or --sum: Sum the population of two or more atom species. Syntax: Separate the atom species number with ':'. Ex.: ./calc_pop filename.out -s 1:2 \n
+- -s or --sum: Sum the population of two or more atom species. Syntax: Separate the atom species number with ':'. Ex.: ./calc_pop filename.out -s 1:2 \n
 - -v or --value: Substract the result of the option -s or --sum from a specified value.
 - -h or --help: Show the help.
 - -V or --Version: Show the help"
