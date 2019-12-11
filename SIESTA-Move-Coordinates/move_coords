@@ -1,20 +1,51 @@
 #!/bin/bash
 
-#O que este script faz? 
-#Este script moverá as coordenadas dos átomos presentes no arquivo *.xyz, substituindo o nome do átomo pelo número do átomo presente no seu arquivo *.fdf, automaticamente!
+#What does this script do?
+#First, it will read your input (.fdf file) to identify the numeration of each atomic specie.
+#Then, it will replace each atomic specie name inside the .xyz file with its corresponding numeration from the .fdf file.
+#Next, it will move all the coordinates from the .xyz to your .fdf file, automatically.
+#Additionally, it can change the NumberOfAtoms, NumberOfSpecies and the SystemLabel of the .fdf with the correct values obtained from your .xyz file.
 #REQUIREMENTS:
-#1-Só pode haver um único arquivo *.fdf e *.xyz na pasta em que o script estiver.
-#2-O nome dos pseudopotenciais presentes no bloco: "%block ChemicalSpeciesLabel" do seu arquivo *.fdf devem estar no formato Atomo_gga, Atomo_lda ou Atomo. Ex.: Fe_gga, Fe_lda ou Fe.
+#The name of the pseudopotentials in the block: "%block ChemicalSpeciesLabel" in your * .fdf file must be in one of the following formats: Atom_gga, Atom_lda, or Atom. Ex.: Fe_gga, Fe_lda, Fe.
 
-#Para usar bastar abrir um terminal e executar ./script_coord_v1.3. Caso dê algum erro digite o seguinte o comando: chmod +x script_coord_v1.3 e depois tente executar o script novamente!
-
-#Informe o nome do seu arquivo .fdf
-arquivo_fdf=$1
-
-#Informe o nome do seu arquivo .xyz
-nome_xyz=$2
+#USAGE:
+#Copy the move_coords to the folder to the same folder of your .fdf file and .xyz file
+#In the first time you use this script, type the following command before: chmod +x extract_coords
+#Type in the terminal: ./move_coords filename1.fdf filename2.xyz (Alternative mode: ./move_coords filename1.xyz filename2.fdf
+#After that, the coordinates will be moved to the .fdf file, and then, some more options will appear (They are explained below).
 
 #By: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
+
+helpFunction()
+{
+   echo -e "WHAT DOES THIS TOOL DO:\nFirst, it will read your input (.fdf file) to identify the numeration of each atomic specie.\nThen, it will replace each atomic specie name inside the .xyz file with its corresponding numeration from the .fdf file.\nNext, it will move all the coordinates from the .xyz to your .fdf file, automatically.\nAdditionally, it can change the NumberOfAtoms, NumberOfSpecies and the SystemLabel of the .fdf with the correct values obtained from your .xyz"
+   echo -e "\nUSAGE:\nCopy the move_coords to the folder to the same folder of your .fdf file and .xyz file.\nIn the first time you use this script, type the following command before: chmod +x extract_coords.\nType in the terminal: ./move_coords filename1.fdf filename2.xyz \nAlternative mode: ./move_coords filename1.xyz filename2.fdf.\Then, follow the interative options that appear."
+   echo -e "\nREQUIREMENTS:\nThe name of the pseudopotentials in the block: '%block ChemicalSpeciesLabel' in your * .fdf file must be in one of the following formats: Atom_gga, Atom_lda, or Atom. Ex.: Fe_gga, Fe_lda, Fe."
+   echo -e "\nOPTIONS:\n-h or --help: Show the help.\n-V or --Version: Show the help"
+   exit 1 # Exit script after printing help
+}
+
+for arg in "$@"
+do
+	ext=`echo $arg | cut -f2 -d"."`
+	if [[ ${ext} == "fdf" ]]; then
+		arquivo_fdf=$arg
+		shift
+	elif [[ ${ext} == "xyz" ]]; then
+		nome_xyz=$arg
+		shift
+	fi
+    case $arg in
+    -V | --Version )
+      echo 1.6
+	  exit
+    ;;
+	
+	-h | --help )
+	helpFunction 
+	;;  
+  esac
+done
 
 ext1=`echo $arquivo_fdf | cut -f2 -d"."`
 ext2=`echo $nome_xyz | cut -f2 -d"."`
@@ -62,7 +93,7 @@ else
 		echo "Moving the atoms column"
   else	
 	echo "Extension not supported. Use only .fdf or .xyz files"
-	echo -e "\nHow to use: ./script_coord file1.fdf file2.xyz \nAlternative mode: ./script_coord file1.xyz file2.fdf"
+	echo -e "\nHow to use: ./move_coords file1.fdf file2.xyz \nAlternative mode: ./move_coords file1.xyz file2.fdf"
 	exit
   fi
 fi
@@ -111,30 +142,37 @@ rm -rf coordenada* $arquivo_fdf
 mv fdf $nome_fdf
 
 nome_fdf_cut=`echo $nome_fdf | cut -f1 -d"."`
-echo -e "\nRename the SystemLabel with the .fdf filename ${nome_fdf_cut}? (Y)Yes (N)No"
+nome_xyz_cut=`echo $nome_xyz | cut -f1 -d"."`
+echo -e "Rename the SystemLabel with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
 read awn1
 if [ $awn1 == "Y" ] || [ $awn1 == "y" ];then
 	label=`grep SystemLabel $arquivo_fdf | awk '{print $2}'`
-	sed -i "s/${label}/${nome_fdf_cut}/" $arquivo_fdf
+	sed -i "s/${label}/${nome_xyz_cut}/" $arquivo_fdf
 fi
 
-echo -e "\nChange the NumberOfAtoms in ${arquivo_fdf} with the correct number of atoms from ${nome_xyz}? (Y)Yes (N)No"
+echo "Change the NumberOfAtoms in ${arquivo_fdf} with the correct number of atoms from ${nome_xyz}? (Y)Yes (N)No"
 read awn2
 if [ $awn2 == "Y" ] || [ $awn2 == "y" ];then
 	num_atom=`grep NumberOfAtoms $arquivo_fdf`
 	num_atom_cut=`echo $num_atom | awk '{print $1}'`
-	n_atom=`head -n +1 *.xyz | tail -1 | cut -c-2`
+	n_atom=`head -n +1 $nome_xyz | tail -1 | cut -c-2`
 	n_atoms=`echo $num_atom_cut  $n_atom`
 	sed -i "s/${num_atom}/${n_atoms}/" $arquivo_fdf
 fi
 
-echo -e "\nChange the NumberOfSpecies in ${arquivo_fdf} with the correct number of species from ${nome_xyz}? (Y)Yes (N)No"
+echo "Change the NumberOfSpecies in ${arquivo_fdf} with the correct number of species from ${nome_xyz}? (Y)Yes (N)No"
 read awn3
 if [ $awn3 == "Y" ] || [ $awn3 == "y" ];then
 	num_species=`grep NumberOfSpecies $arquivo_fdf`
 	num_species_cut=`echo $num_species | awk '{print $1}'`
 	n_species=`echo $num_species_cut  $quant`
 	sed -i "s/${num_species}/${n_species}/" $arquivo_fdf
+fi
+
+echo "Rename the .fdf filename with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
+read awn4
+if [ $awn4 == "Y" ] || [ $awn4 == "y" ];then
+	mv $nome_fdf $nome_xyz_cut.fdf
 fi
 
 echo -e "\nIt's Done! All of your coordinates from "$nome_xyz" have been moved to file: "$arquivo_fdf
