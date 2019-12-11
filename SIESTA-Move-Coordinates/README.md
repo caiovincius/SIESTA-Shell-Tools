@@ -7,16 +7,16 @@ A easy way to move all the coordinates from a .xyz file to the input of SIESTA (
 - Next, it will move all the coordinates from the .xyz to your .fdf file, automatically.
 - Additionally, it can change the NumberOfAtoms, NumberOfSpecies and the SystemLabel of the .fdf with the correct values obtained from your .xyz file.
 
+## Requirements
+The name of the pseudopotentials in the block: "%block ChemicalSpeciesLabel" in your * .fdf file must be in one of the following formats: Atom_gga, Atom_lda, or Atom. Ex.: Fe_gga, Fe_lda, Fe.
+
 ## **How to use?**
 1. Copy the script_coord to the folder to the same folder of your .fdf file and .xyz file
 2. In the first time you use this script, type the following command before: chmod +x extract_coords
 3. Type in the terminal: ./script_coord filename1.fdf filename2.xyz 
 
      (Alternative mode: ./script_coord filename1.xyz filename2.fdf)
-6. After that, the coordinates will be moved to the .fdf file, and then, some more options will appear (They are explained below).
-
-## REQUIREMENTS
-The name of the pseudopotentials in the block: "%block ChemicalSpeciesLabel" in your * .fdf file must be in one of the following formats: Atom_gga, Atom_lda, or Atom. Ex.: Fe_gga, Fe_lda, Fe.
+4. Then, follow the Interative Options that appear (They are explained below).
 
 ## Interative Options
 - "Rename the SystemLabel with the .xyz filename? (Y)Yes (N)No"
