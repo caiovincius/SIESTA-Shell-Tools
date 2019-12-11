@@ -3,7 +3,7 @@
 - All tools are USER-FRIENDLY, so even a newbie can use it. 
 - Some tools are interatives, i.e., some options appear and the user only have to awnser what he/she wants.
  
- A short description of each tool are described below:
+ A short description of each tool are shown below:
 
 ### SIESTA-Extract-Coordinates
 A easy tool to extract the initial and final (converged) coordinates from the output (.out) of SIESTA to a .xyz file. This script also work in .fdf files. This script is ideal when you lost the converged .xyz file or you don't know what was the initial structure of the calculation.
