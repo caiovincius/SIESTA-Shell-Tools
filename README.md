@@ -1,6 +1,8 @@
 # SIESTA-Shell-Tools
-A package with many shell-programmed tools to make things easier when you are working on SIESTA. All tools are USER-FRIENDLY, so even a newbie can use it. Some tools are interatives, i.e., some options appear and the user only have to awnser what he/she wants.
-
+- A package with many shell-programmed tools to make things easier when you are working on SIESTA. 
+- All tools are USER-FRIENDLY, so even a newbie can use it. 
+- Some tools are interatives, i.e., some options appear and the user only have to awnser what he/she wants.
+ 
  A short description of each tool are described below:
 
 ### SIESTA-Extract-Coordinates
