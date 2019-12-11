@@ -7,8 +7,9 @@ Moreover, if you only want increase your structure size, this script do this wor
 
 ## How to use?
 - Copy this script to your .xyz file folder.
-- And enter the correct lattice information of your structure (LatticeConstant and LatticeVectors).
 - In terminal, type the command: ./script_replic filename.xyz
+- Enter the correct lattice information of your structure (LatticeConstant and LatticeVectors).
+- And enter how many times do you want to replicate the structure in the X, Y and Z directions.
 - If any error occurs, type the following command: chmod +x script_replic
 
 ## Extra
