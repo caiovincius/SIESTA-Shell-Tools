@@ -14,6 +14,9 @@ A easy way to move all the coordinates from a .xyz file to the input of SIESTA (
      (Alternative mode: ./script_coord filename1.xyz filename2.fdf
 6. After that, the coordinates will be moved to the .fdf file, and then, some more options will appear (They are explained below).
 
+## REQUIREMENTS
+The name of the pseudopotentials in the block: "%block ChemicalSpeciesLabel" in your * .fdf file must be in one of the following formats: Atom_gga, Atom_lda, or Atom. Ex.: Fe_gga, Fe_lda, Fe.
+
 ## Interative Options
 - "Rename the SystemLabel with the .xyz filename? (Y)Yes (N)No"
 
