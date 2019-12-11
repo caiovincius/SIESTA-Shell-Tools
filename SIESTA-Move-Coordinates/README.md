@@ -11,7 +11,8 @@ A easy way to move all the coordinates from a .xyz file to the input of SIESTA (
 1. Copy the script_coord to the folder to the same folder of your .fdf file and .xyz file
 2. In the first time you use this script, type the following command before: chmod +x extract_coords
 3. Type in the terminal: ./script_coord filename1.fdf filename2.xyz 
-     (Alternative mode: ./script_coord filename1.xyz filename2.fdf
+
+     (Alternative mode: ./script_coord filename1.xyz filename2.fdf)
 6. After that, the coordinates will be moved to the .fdf file, and then, some more options will appear (They are explained below).
 
 ## REQUIREMENTS
