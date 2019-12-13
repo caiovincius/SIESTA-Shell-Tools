@@ -155,7 +155,7 @@ read awn2
 if [ $awn2 == "Y" ] || [ $awn2 == "y" ];then
 	num_atom=`grep NumberOfAtoms $arquivo_fdf`
 	num_atom_cut=`echo $num_atom | awk '{print $1}'`
-	n_atom=`head -n +1 $nome_xyz | tail -1 | cut -c-2`
+	n_atom=`head -n +1 $nome_xyz | tail -1`
 	n_atoms=`echo $num_atom_cut  $n_atom`
 	sed -i "s/${num_atom}/${n_atoms}/" $arquivo_fdf
 fi
