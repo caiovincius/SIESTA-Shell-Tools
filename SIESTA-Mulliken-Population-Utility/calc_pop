@@ -26,27 +26,30 @@ helpFunction()
    echo -e "\WHAT DOES THIS TOOL DO:\nIt calculates the Mulliken Population for each atom specie from the .out file generated in calculations using SIESTA."
    echo -e "\nUSAGE:\n./calc_pop filename.out \n./calc_pop filename.out -u 80\n./calc_pop filename.out -s 1:2 -v 300.1"
    echo -e "\nOPTIONS:\n-u or --until: Calculate the Mulliken Population until the specified atom number in the system.\n-s or --sum: Sum the population of two or more atom species. Syntax: Separate the atom species number with ':'. Ex.: ./calc_pop filename.out -s 1:2 \n-v or --value: Substract the result of the option -s or --sum from a specified value.\n-h or --help: Show the help.\n-V or --Version: Show the help"
-   echo -e "\nEXAMPLE:\n(Calculate until atom 80, sum the 1st, 3rd and 4th atom species population, and substract 320.20 from the sum)\n./calc_pop filename.out -u 80 -s 1:3:4 -v 320.20"
+   echo -e "\nEXAMPLE:\n(Calculate until atom 80, sum the 1st, 3rd atom species population, and substract 320.20 from the sum)\n./calc_pop filename.out -u 80 -s 1:3:4 -v 320.20"
    exit 1 # Exit script after printing help
 }
 
 unt=0
 value=0
+value_var=0
+verify_sum1=`echo "$@" | awk -F" -s " '{print NF-1}'` 
+verify_sum2=`echo "$@" | awk -F" --sum " '{print NF-1}'`
 
 for arg in "$@"
 do
 	ext=`echo $arg | cut -f2 -d"."`
 	if [[ ${ext} == "out" ]]; then
-		arquivo_out=$arg
+		arquivo_out+=($arg)
 		shift
 	fi
     case $arg in
    -u | --until )
 	unt=$2
 	len=${#unt}
-	testvar=$(echo "$unt" |  tr -c '0-9.' '\n')   # remove non-numeric chars from $unt
+	testvar=$(echo "$unt" | tr -c '0-9' '\n')     # remove non-numeric chars from $unt
 	if [[ $len -ne ${#testvar} ]] ; then 
-		echo -e "\nError: $unt is not a number"  # error message
+		echo -e "ERROR: $unt is not a number"  # error message
 		exit
 	fi
 	shift
@@ -70,14 +73,14 @@ do
             len=${#summation[$i]}
 			testvar=$(echo "${summation[$i]}" |  tr -c '0-9.' '\n')   # remove non-numeric chars from ${summation[$(($i-1))]}
 			if [[ $len -ne ${#testvar} ]] ; then 
-				echo -e "\nError: ${summation[$i]} is not a number"  # error message
+				echo -e "ERROR: ${summation[$i]} is not a number"  # error message
 				exit
 			fi			
 		fi
 		len=${#summation[$(($i-1))]}
 		testvar=$(echo "${summation[$(($i-1))]}" |  tr -c '0-9.' '\n')   # remove non-numeric chars from ${summation[$(($i-1))]}
 		if [[ $len -ne ${#testvar} ]] ; then 
-			echo -e "\nError: ${summation[$(($i-1))]} is not a number"  # error message
+			echo -e "ERROR: ${summation[$(($i-1))]} is not a number"  # error message
 			exit
 		fi
 	done	
@@ -88,15 +91,15 @@ do
 	helpFunction ;;
 	
     -v | --value )
-	 verify_sum1=`echo "$@" | awk -F" -s " '{print NF-1}'`
-	 verify_sum2=`echo "$@" | awk -F" --sum " '{print NF-1}'`
 	 if [[ $verify_sum1 -ne 0 || $verify_sum2 -ne 0 ]]; then
 		value=$2
 		len=${#value}
 		testvar=$(echo "$value" |  tr -c '0-9.' '\n')   # remove non-numeric chars from $value
 		if [[ $len -ne ${#testvar} ]] ; then 
-			echo -e "\nError: $value is not a number"  # error message
+			echo -e "ERROR: $value is not a number"  # error message
 			exit
+		else
+			value_var=1
 		fi
 	 else
 		echo -e "The parameter -s must be included to use the option -v\nEx.: /calc_pop filename.out -s 1:3 -v 320.02"
@@ -109,29 +112,34 @@ do
   esac
 done
 
-if [[ $arquivo_out == "*.out" ]];then
-    out=(`find *.out`)
-    if [ ${#out[*]} -gt 1 ];then
-       echo -e "\nERROR: More than one .out file found. \nPlease enter the full filename or remove one of the .out files in this folder"
-  	   exit
-	elif [ ${#out[*]} -eq 0 ];then
-       echo -e "\nERROR: No .out files found"
-	   exit  
-    fi
+out=(`find *.out`)
+if [ ${#arquivo_out[*]}  -gt 1 ];then
+   echo -e "ERROR: More than one .out file found. \nPlease enter the full filename or remove one of the .out files in this folder"
+   exit
+elif [ ${#arquivo_out[*]}  -eq 0 ];then
+   echo -e "ERROR: No .out files found"
+   echo -e "\nHow to use: ./calc_pop file1.out"
+   exit  
 else
   out=(`find $arquivo_out`)
   ext=`echo $out | cut -f2 -d"."`
   if [ ${#out[*]} -eq 0 ];then
-     echo -e "\nERROR: " $arquivo_out " not found"
+     echo -e "ERROR: " $arquivo_out " not found"
 	 exit
   fi
-  if [[ $ext == "out" ]]; then
-		echo "Summing values of Mulliken Population from ${arquivo_out}"		
-  else	
+  if [[ $ext != "out" ]]; then
 	echo "Extension not supported. Use only .out files"
 	echo -e "\nHow to use: ./calc_pop file1.out"
-	exit
+	exit	
   fi
+fi
+
+converged=`grep -n "End of run" $arquivo_out | tail -1`
+if [[ ${#converged} -eq 0 ]]; then
+	echo -e "Error: The calculation is not finished"
+	exit
+else
+	echo "Summing values of Mulliken Population from ${arquivo_out}"	
 fi
 
 constrained=`grep constrained $arquivo_out | awk '{print $2}' | cut -f1 -d":"  | tail -1` 
@@ -174,7 +182,7 @@ for ((i=0; i<$quant; i=$(($i+1))))
           do 
 			if [[ $unt != 0 ]]; then
 				verify_unt=`tail -n +$j arquivoup | head -n 1 | awk '{print $1}'`
-				if [[ $verify_unt -ge $unt ]]; then
+				if [[ $verify_unt -gt $unt ]]; then
 					break
 				fi
 			fi
@@ -198,7 +206,7 @@ for ((i=0; i<$quant; i=$(($i+1))))
           do 
 			if [[ $unt != 0 ]]; then
 				verify_unt=`tail -n +$k arquivodown | head -n 1 | awk '{print $1}'`
-				if [[ $verify_unt -ge $unt ]]; then
+				if [[ $verify_unt -gt $unt ]]; then
 					break
 				fi
 			fi
@@ -228,7 +236,7 @@ for ((i=0; i<$quant; i=$(($i+1))))
              do
 			   if [[ $unt != 0 ]]; then
 				  verify_unt=`tail -n +$j arquivoup | head -n 1 | awk '{print $1}'`
-				  if [[ $verify_unt -ge $unt ]]; then
+				  if [[ $verify_unt -gt $unt ]]; then
 					break
    				  fi
 			   fi	
@@ -252,7 +260,7 @@ for ((i=0; i<$quant; i=$(($i+1))))
              do
 				if [[ $unt != 0 ]]; then
 					verify_unt=`tail -n +$k arquivodown | head -n 1 | awk '{print $1}'`
-					if [[ $verify_unt -ge $unt ]]; then
+					if [[ $verify_unt -gt $unt ]]; then
 						break
 					fi
 				fi
@@ -313,7 +321,7 @@ if [[ ${#summation[*]} -ge 2 ]]; then
 fi
   syst_erro=`echo ${soma2[1]} ${soma2[2]} | awk '{printf "%f", 2*($1 + $2)}'`
   	
-if [[ $value -ne 0 ]];then
+if [[ $value_var -ne 0 ]]; then
 	result=`echo $syst1 $value | awk '{printf "%f", $1 - $2}'` 
 	echo -e "\nResult subtracting $value: " $result
 fi
