@@ -1,0 +1,30 @@
+#!/bin/bash
+# Description: Restart SIESTA Calculations in every reboot, and verify if the calculation was break every 10 minutes.
+#
+#By.: Caio Vinícius C. R. da Silva - caioviniciuscaetano@hotmail.com
+ 
+a=1
+while [ $a -gt 0 ]; do
+RESTART_PATH=`grep RESTART_PATH ~/.profile | cut -f2 -d"="`
+if [ -e $RESTART_PATH ]; then
+	verify=`grep 'End of run' $RESTART_PATH/*.out` 
+	if [ ${#verify} -eq 0 ];then 
+		verify_process=(`ps -aux | grep siesta`) 
+		if [ ${#verify_process[*]} -le 13 ]; then
+			cd $RESTART_PATH
+			if [ ! -e restart ]; then
+				mkdir restart
+				mkdir restart/outs
+				mkdir restart/DMs
+				echo -e "Calculation Restarts Dates\n" > restart/restart_log
+			fi
+			date >> restart/restart_log
+			n=`wc restart/restart_log | awk '{print $1-2}'`
+			cp -a *.out restart/outs/out$n.out
+			cp -a *.DM restart/DMs/DM$n.DM		
+			at -f run now		 
+		fi	   
+	fi
+    sleep 600
+fi
+done
