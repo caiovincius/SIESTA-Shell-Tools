@@ -1,1 +1,77 @@
+#!/bin/bash
 
+#WHAT DOES THIS SCRIPT DO? 
+#It calculates the corrected values to plot the LDOS using the RHO2XSF script.
+
+#HOW TO USE?
+#Copy this script to your calculation folder that contains the .out, .XV and .xyz file.
+#Type in the therminal the following command: ./ldos_params
+#If you get error, type in the terminal: chmod +x ldos_params
+
+out=(`find *.out`)
+if [ ${#out[*]}  -gt 1 ];then
+   echo -e "ERROR: More than one .out file found. \nPlease remove one of the .out files in this folder"
+   exit
+elif [ ${#out[*]}  -eq 0 ];then
+   echo -e "ERROR: No .out file found"
+   exit  
+fi
+
+nome_xv=(`find *.XV`)
+if [ ${#nome_xv[*]}  -gt 1 ];then
+   echo -e "ERROR: More than one .XV file found. \nPlease remove one of the .XV files in this folder"
+   exit
+elif [ ${#nome_xv[*]}  -eq 0 ];then
+   echo -e "ERROR: No .XV file found"
+   exit  
+fi
+
+label=`echo $nome_xv | cut -f1 -d"."`
+
+nome_xyz=(`find $label.xyz`)
+if [ ${#nome_xyz[*]}  -gt 1 ];then
+   echo -e "ERROR: More than one .xyz file found. \nPlease remove one of the .xyz files in this folder"
+   exit
+elif [ ${#nome_xyz[*]}  -eq 0 ];then
+   echo -e "ERROR: No .xyz file found"
+   exit  
+fi
+
+echo "Label: "$label
+
+xyz=`find $nome_xyz`
+linha_max=`wc $xyz | awk '{print $1}'`
+tail -n +3 $xyz | head -n $linha_max > calc
+x_min=`awk '{print $2}' calc | awk 'NR == 1 || $1 < min {line = $0; min = $1}END{print line}'`
+y_min=`awk '{print $3}' calc | awk 'NR == 1 || $1 < min {line = $0; min = $1}END{print line}'`
+z_min=`awk '{print $4}' calc | awk 'NR == 1 || $1 < min {line = $0; min = $1}END{print line}'`
+x_max=`awk '{print $2}' calc | awk 'NR == 1 || $1 > max {line = $0; max = $1}END{print line}'`
+y_max=`awk '{print $3}' calc | awk 'NR == 1 || $1 > max {line = $0; max = $1}END{print line}'`
+z_max=`awk '{print $4}' calc | awk 'NR == 1 || $1 > max {line = $0; max = $1}END{print line}'`
+#echo $x_min $x_max $y_min $y_max $z_min $z_max
+
+x=`echo $x_min $x_max | awk '{printf "%f", (1.88973*($2 + $1)/2)}'`
+y=`echo $y_min $y_max | awk '{printf "%f", (1.88973*($2 + $1)/2)}'`
+z=`echo $z_min $z_max | awk '{printf "%f", (1.88973*($2 + $1)/2)}'`
+
+x1=`tail -n +1 $label.XV | head -n 1 | awk '{printf "%0.10f", $1/2}'`
+y1=`tail -n +2 $label.XV | head -n 1 | awk '{printf "%0.10f", $2/2}'`
+z1=`tail -n +3 $label.XV | head -n 1 | awk '{printf "%0.10f", $3/2}'`
+echo "XV Origin:" $x1 $y1 $z1
+
+x2=`echo $x $x1 | awk '{printf "%0.10f", $1+$2}'`
+y2=`echo $y $y1 | awk '{printf "%0.10f", $1+$2}'`
+z2=`echo $z $z1 | awk '{printf "%0.10f", $1+$2}'`
+echo "Fixed Origin: "$x2 $y2 $z2
+
+for ((i=1;i<=3;i++));do
+vector=`tail -n +$i $label.XV | head -n 1 | awk '{print $1" "$2" "$3}'`
+echo "Span Vector ${i}:" $vector
+done
+
+gx=`grep MESH $label.out | awk '{print $4}'`
+gy=`grep MESH $label.out | awk '{print $6}'`
+gz=`grep MESH $label.out | awk '{print $8}'`
+echo "Grid Points:" $gx $gy $gz
+
+rm calc
