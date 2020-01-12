@@ -22,3 +22,6 @@ A easy tool to extract the initial and final (converged) coordinates from the ou
 
 ### SIESTA-Test-Lattice
 An easy tool to replicate your structure from the .xyz file using the LatticeConstant and LatticeVectors that you choose. Thus, you can test if your Lattice parameters are correct for your periodic calculation in SIESTA.
+
+### RHO2XSF-LDOS-Utility
+It dysplay on terminal the parameters: SystemLabel, Fixed Origin (in Bohr), the 3 Spanning Vectors (in Bohr) and the correct grid points number of your system, so it makes the things easy for you plot the LDOS on RHO2XSF script
