@@ -2,7 +2,7 @@
 An easy tool to calculate Mulliken Population in many customized ways for SIESTA Calculations.
 
 ## What does this tool do?
-It calculates the Mulliken Population for each atom specie from the .out file generated in calculations using SIESTA.
+It calculates the Mulliken Population for each atom specie from the .out file generated in calculations using SIESTA. You can skip some atoms or begin the calculation starting from some atom until other atom. It calculates the Magnetic Moment too!
 
 ## Usage:
 - Copy this script to the .out file folder.
