@@ -16,7 +16,7 @@
 helpFunction()
 {
    echo -e "Usage:\n./extract_coords filename.out --converged\n./extract_coords filename.out --initial\n./extract_coords filename.fdf"
-   echo -e "OPTIONS:\n--initial or -i: Extract the initial coordinates from the .out file.\n--converged or -c: Extract the converged coordinates from the .out file.\n--version or -v: Show the version.\n--help or -h: Show the version."
+   echo -e "OPTIONS:\n-i or --initial: Extract the initial coordinates from the .out file.\n-c or --converged: Extract the converged coordinates from the .out file.\n-h or --help: Show the help.\n-V or --version: Show the version."
    exit 1 # Exit script after printing help
 }
 
@@ -28,7 +28,7 @@ if [[ ${#ext1} -eq 3 ]]; then
 fi
 
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
-  -v | --version )
+  -V | --version )
     echo 1.1
     exit
     ;;
