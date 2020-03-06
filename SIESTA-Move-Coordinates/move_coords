@@ -18,13 +18,21 @@
 
 helpFunction()
 {
+echo -e " ${nome_xyz_cut}? (Y)Yes (N)No"
+echo " ${nome_xyz_cut}? (Y)Yes (N)No"
+echo "Change the NumberOfAtoms in ${arquivo_fdf} with the correct number of atoms from ${nome_xyz}? (Y)Yes (N)No"
+echo "Change the NumberOfSpecies in ${arquivo_fdf} with the correct number of species from ${nome_xyz}? (Y)Yes (N)No"
    echo -e "WHAT DOES THIS TOOL DO:\nFirst, it will read your input (.fdf file) to identify the numeration of each atomic specie.\nThen, it will replace each atomic specie name inside the .xyz file with its corresponding numeration from the .fdf file.\nNext, it will move all the coordinates from the .xyz to your .fdf file, automatically.\nAdditionally, it can change the NumberOfAtoms, NumberOfSpecies and the SystemLabel of the .fdf with the correct values obtained from your .xyz"
    echo -e "\nUSAGE:\nCopy the move_coords to the folder to the same folder of your .fdf file and .xyz file.\nIn the first time you use this script, type the following command before: chmod +x extract_coords.\nType in the terminal: ./move_coords filename1.fdf filename2.xyz \nAlternative mode: ./move_coords filename1.xyz filename2.fdf.\Then, follow the interative options that appear."
    echo -e "\nREQUIREMENTS:\nThe name of the pseudopotentials in the block: '%block ChemicalSpeciesLabel' in your * .fdf file must be in one of the following formats: Atom_gga, Atom_lda, or Atom. Ex.: Fe_gga, Fe_lda, Fe."
-   echo -e "\nOPTIONS:\n-h or --help: Show the help.\n-V or --Version: Show the help"
+   echo -e "\nOPTIONS:\n-l or --label: Change the SystemLabel with the .xyz filename.\n-r or --rename: Rename the .fdf file with the .xyz filename.\n-a or --atoms: Change the NumberOfAtoms in .fdf file with the correct number of ATOMS from the .xyz file.\n-s or --species: Change the NumberOfSpecies in .fdf file with the correct number of SPECIES from the .xyz file.\n-h or --help: Show the help.\n-V or --version: Show the version."
+   echo -e "\nEXAMPLE:\n./move_coords filename1.fdf filename2.xyz -l -r -a -s"
    exit 1 # Exit script after printing help
 }
-
+label=0
+rename=0	
+n_atoms=0
+n_species=0
 for arg in "$@"
 do
 	ext=`echo $arg | cut -f2 -d"."`
@@ -36,11 +44,30 @@ do
 		shift
 	fi
     case $arg in
-    -V | --Version )
-      echo 1.6
+    -V | --version )
+      echo 1.7
 	  exit
-    ;;
-	
+    ;;	
+	-l | --label )
+	label=1	
+	shift
+	shift
+      ;;
+	-r | --rename )
+	rename=1	
+	shift
+	shift
+      ;;
+     -a | --atoms )
+	n_atoms=1	
+	shift
+	shift
+      ;;	  
+	-s | --species )
+	n_species=1	
+	shift
+	shift
+      ;;
 	-h | --help )
 	helpFunction 
 	;;  
@@ -143,16 +170,13 @@ mv fdf $nome_fdf
 
 nome_fdf_cut=`echo $nome_fdf | cut -f1 -d"."`
 nome_xyz_cut=`echo $nome_xyz | cut -f1 -d"."`
-echo -e "Rename the SystemLabel with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
-read awn1
-if [ $awn1 == "Y" ] || [ $awn1 == "y" ];then
+
+if [ $label -eq 1 ]; then
 	label=`grep SystemLabel $arquivo_fdf | awk '{print $2}'`
 	sed -i "s/${label}/${nome_xyz_cut}/" $arquivo_fdf
 fi
 
-echo "Change the NumberOfAtoms in ${arquivo_fdf} with the correct number of atoms from ${nome_xyz}? (Y)Yes (N)No"
-read awn2
-if [ $awn2 == "Y" ] || [ $awn2 == "y" ];then
+if [ $n_atoms -eq 1 ]; then
 	num_atom=`grep NumberOfAtoms $arquivo_fdf`
 	num_atom_cut=`echo $num_atom | awk '{print $1}'`
 	n_atom=`head -n +1 $nome_xyz | tail -1`
@@ -160,18 +184,14 @@ if [ $awn2 == "Y" ] || [ $awn2 == "y" ];then
 	sed -i "s/${num_atom}/${n_atoms}/" $arquivo_fdf
 fi
 
-echo "Change the NumberOfSpecies in ${arquivo_fdf} with the correct number of species from ${nome_xyz}? (Y)Yes (N)No"
-read awn3
-if [ $awn3 == "Y" ] || [ $awn3 == "y" ];then
+if [ $n_species -eq 1 ]; then
 	num_species=`grep NumberOfSpecies $arquivo_fdf`
 	num_species_cut=`echo $num_species | awk '{print $1}'`
 	n_species=`echo $num_species_cut  $quant`
 	sed -i "s/${num_species}/${n_species}/" $arquivo_fdf
 fi
 
-echo "Rename the .fdf filename with the .xyz filename ${nome_xyz_cut}? (Y)Yes (N)No"
-read awn4
-if [ $awn4 == "Y" ] || [ $awn4 == "y" ];then
+if [ $rename -eq 1 ]; then
 	mv $nome_fdf $nome_xyz_cut.fdf
 fi
 
