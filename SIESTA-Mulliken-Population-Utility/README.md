@@ -18,11 +18,11 @@ It calculates the Mulliken Population for each atom specie from the .out file ge
 - -V or --Version: Show the help"
 
 ## Examples:
-- Calculate until atom 80, sum the 1st, 3rd and 4th atom species population, and substract 320.20 from the result:
+- To calculate until atom 80, sum populations of the 1st, 3rd and 4th atom species population, and substract 320.20 from the result:
 
 ./calc_pop filename.out -u 80 -s 1:3:4 -v 320.20
 
-- Calculate from atom 20 to atom 80, sum the 1st and 2nd atom species population, and substract 305.42 from the result
+- To calculate from atom 20 to atom 80, sum populations of the 1st and 2nd atom species, and substract 305.42 from the result:
 
 ./calc_pop filename.out -b 20 -u 80 -s 1:2 -v 305.42
 
