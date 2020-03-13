@@ -11,7 +11,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
  3- Copy your .PDOS and .bands files to the folder Util/pdosxml
  4- Run the script: ./script_PDOS_plot --options
 
-## MODES:
+## Modes:
 - There are two modes to run this script:
    1. Interative mode:
                    ./script_PDOS_plot file1.PDOS file2.bands
@@ -19,15 +19,39 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
                    ./script_PDOS_plot file1.bands file2.PDOS --options
 
    If you choose the interative mode, a lot of options will appear and you
-   have to select what do you want to do. While the terminal options mode, as
+   have to select what do you want to do. While the terminal commands mode, as
    all the options are selected with only one command line, the calculation
    will be done immediately
 
-
 ### Important: If you don't use any terminal command options, the script will automatically start the INTERATIVE MODE.
+
+## Terminal Commands
 
 ## Options
 - The First option that will appear is:
+-s, --species   Choose which atom species with its corresponding energy
+                   levels will be plotted. If you want all the energy levels
+                   of an atom, don't specify them.
+                   Syntax: ATOM:ATOM-2s:ATOM_gga-2p:ATOM-3...
+                           all (all atom species without separating their
+                                energy levels)
+   -f, --fermi     Change the Fermi Level to another value, such as 0, -2...
+   -c, --cut       Split the PDOS from some atom until another. Useful in
+                   systems which have 2 compounds with the same atoms, for
+                   example: Carbon nanotube with Ethanol.
+                   Syntax: INTEGER-INTEGER-INTEGER-INTEGER...
+                   (Only positive integers)
+   -xmg, --enable-xmg
+                   A .agr file, compatible with the xmgrace software, will
+                   be generated with the correct labels and subtitles.
+                   The X and Y Axis values have to be definied by the user,
+                   so you must use the options -x and -y after this option.
+   -x              Specify the minimum and maximum values for the X Axis,
+                   respectively.
+                   Syntax: REAL:REAL
+   -y              Specify the minimum and maximum values for the Y Axis,
+                   respectively.
+                   Syntax: REAL:REAL
 
 "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 
