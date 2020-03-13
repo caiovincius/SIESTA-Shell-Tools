@@ -5,13 +5,26 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 - It will easy generate a PDOS (Projected Density of States) with the Fermi level for you calculation done on SIESTA Package. You can also separate the energy levels of repeated atoms in your system and customize your graph before plot in xmgrace.
 
 ## **How to use?**
-1. Copy the script_PDOS_plot to the folder Util/pdosxml (It is located inside your SIESTA folder).
-2. Open a terminal in this folder and type the following command: chmod +x script_PDOS_plot
+1. Copy the script_PDOS_plot to the folder Util/pdosxml inside the SIESTA folder.
+2. Type the following command in the terminal: chmod +x script_PDOS_plot
    - (Only do the steps 1 and 2 in the first time you use this script)
-3. Copy the .PDOS and .bands files to the folder Util/pdosxml (It is located inside your SIESTA folder).
-4. Be sure that only has one .PDOS and .bands file in this folder.
-5. Open a terminal in this folder and type the following command: ./script_PDOS_plot
-6. Follow the options that will appear! (They are explained below)
+ 3- Copy your .PDOS and .bands files to the folder Util/pdosxml
+ 4- Run the script: ./script_PDOS_plot --options
+
+## MODES:
+- There are two modes to run this script:
+   1. Interative mode:
+                   ./script_PDOS_plot file1.PDOS file2.bands
+   2. Terminal commands mode:
+                   ./script_PDOS_plot file1.bands file2.PDOS --options
+
+   If you choose the interative mode, a lot of options will appear and you
+   have to select what do you want to do. While the terminal options mode, as
+   all the options are selected with only one command line, the calculation
+   will be done immediately
+
+
+### Important: If you don't use any terminal command options, the script will automatically start the INTERATIVE MODE.
 
 ## Options
 - The First option that will appear is:
