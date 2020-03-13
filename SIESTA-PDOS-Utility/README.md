@@ -27,7 +27,6 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 
 ## Terminal Commands
 
-## Options
 - The First option that will appear is:
 - -s, --species   Choose which atom species with its corresponding energy
                    levels will be plotted. If you want all the energy levels
@@ -52,6 +51,8 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 -    -y              Specify the minimum and maximum values for the Y Axis,
                    respectively.
                    Syntax: REAL:REAL
+
+## Options
 
 "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 
