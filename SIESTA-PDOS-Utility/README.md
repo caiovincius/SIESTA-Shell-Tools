@@ -29,27 +29,27 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 
 ## Options
 - The First option that will appear is:
--s, --species   Choose which atom species with its corresponding energy
+- -s, --species   Choose which atom species with its corresponding energy
                    levels will be plotted. If you want all the energy levels
                    of an atom, don't specify them.
                    Syntax: ATOM:ATOM-2s:ATOM_gga-2p:ATOM-3...
                            all (all atom species without separating their
                                 energy levels)
-   -f, --fermi     Change the Fermi Level to another value, such as 0, -2...
-   -c, --cut       Split the PDOS from some atom until another. Useful in
+-    -f, --fermi     Change the Fermi Level to another value, such as 0, -2...
+-    -c, --cut       Split the PDOS from some atom until another. Useful in
                    systems which have 2 compounds with the same atoms, for
                    example: Carbon nanotube with Ethanol.
                    Syntax: INTEGER-INTEGER-INTEGER-INTEGER...
                    (Only positive integers)
-   -xmg, --enable-xmg
+-    -xmg, --enable-xmg
                    A .agr file, compatible with the xmgrace software, will
                    be generated with the correct labels and subtitles.
                    The X and Y Axis values have to be definied by the user,
                    so you must use the options -x and -y after this option.
-   -x              Specify the minimum and maximum values for the X Axis,
+-    -x              Specify the minimum and maximum values for the X Axis,
                    respectively.
                    Syntax: REAL:REAL
-   -y              Specify the minimum and maximum values for the Y Axis,
+-    -y              Specify the minimum and maximum values for the Y Axis,
                    respectively.
                    Syntax: REAL:REAL
 
