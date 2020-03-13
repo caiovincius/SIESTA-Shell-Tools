@@ -13,17 +13,17 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 
 ## Modes:
 - There are two modes to run this script:
-   1. Interative mode:
+   1. Interactive mode:
                    ./script_PDOS_plot file1.PDOS file2.bands
    2. Terminal commands mode:
                    ./script_PDOS_plot file1.bands file2.PDOS --options
 
-   If you choose the interative mode, a lot of options will appear and you
+   If you choose the interactive mode, a lot of options will appear and you
    have to select what do you want to do. While the terminal commands mode, as
    all the options are selected with only one command line, the calculation
    will be done immediately
 
-### Important: If you don't use any terminal command options, the script will automatically start the INTERATIVE MODE.
+### Important: If you don't use any terminal command options, the script will automatically start the INTERACTIVE MODE.
 
 ## Terminal Commands
 
@@ -54,7 +54,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 -    -V or --version: Show The version
 -    -h or --help: Show the help
 
-## Options
+## Interactive Options
 
 "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 
