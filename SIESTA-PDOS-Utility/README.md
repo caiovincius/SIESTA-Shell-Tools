@@ -71,8 +71,8 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 - "Do you want to customize the PDOS plot to the xmgrace format (it generates an .agr file)? (Y)Yes (N)No"
 (OPTIONAL)
      - This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule.
-     - If you choose Yes, new options will appear asking you to enter the minimum and maximum values for the X and Y axis, and the colors you want (in the latter, you can use the default colors). 
-     - If you choose No, a .dat file will be generated, and the corresponding subtitles for each energy state will appear in the terminal.
+     - Certify yourself that the atoms coordinates of the compound 1 is after or before the atom coordinates of the compound 2 in your SIESTA input. 
+           - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
 
 - "Do you want to split the PDOS from some atom? (Y)Yes (N)No" 
       - This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule.   
