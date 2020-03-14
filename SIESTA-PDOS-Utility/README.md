@@ -75,10 +75,16 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
      - Basically, what the tool wil do is split the PDOS from the atom X to atom Y, and then it will compare the two files, if a repeated specie is found, it will extract them separately and will put a different subtitle in these states (Ex.: Substitle C(1) for carbon states of the nanotube and C(2) of the ethanol), the others states will be extracted normally.
      
      - Certify yourself that the atoms coordinates of the compound 1 is after or before the atom coordinates of the compound 2 in your SIESTA input. 
-            - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, if you choose Yes, type 80 to split the PDOS after the 80 atom to separate the carbon states of both compounds.       
+          - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, if you choose Yes, type 80 to split the PDOS after the 80 atom to separate the carbon states of both compounds.       
 
-     - You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
-     
+     - You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 80 to 89 to 95 to 101...
+
+- "Do you want to change the Fermi Level to another value? (Y)Yes (N)No"
+
+     - If you choose Yes, type the value you want to change the Fermi Level.
+          - All energy states will be moved to set the Fermi level at the specified value.
+     - If you choose No, the Fermi Level of the system will remain the same.
+
 ## What will be done?
 After you choose all the options you want, this tools will:
 - Create a folder with your System Label
