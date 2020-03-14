@@ -82,7 +82,9 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 - "Do you want to change the Fermi Level to another value? (Y)Yes (N)No"
 
      - If you choose Yes, type the value you want to change the Fermi Level.
+     
           - All energy states will be moved to set the Fermi level at the specified value.
+          
      - If you choose No, the Fermi Level of the system will remain the same.
 
 ## What will be done?
