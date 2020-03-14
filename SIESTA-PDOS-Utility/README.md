@@ -40,15 +40,15 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
                    example: Carbon nanotube with Ethanol.
                    Syntax: INTEGER-INTEGER-INTEGER-INTEGER...
                    (Only positive integers)
--    -xmg or --enable-xmg
+-    -xmg or --enable-xmg:
                    A .agr file, compatible with the xmgrace software, will
                    be generated with the correct labels and subtitles.
                    The X and Y Axis values have to be definied by the user,
                    so you must use the options -x and -y after this option.
--    -x              Specify the minimum and maximum values for the X Axis,
+-    -x:              Specify the minimum and maximum values for the X Axis,
                    respectively.
                    Syntax: REAL:REAL
--    -y              Specify the minimum and maximum values for the Y Axis,
+-    -y:              Specify the minimum and maximum values for the Y Axis,
                    respectively.
                    Syntax: REAL:REAL
 -    -V or --version: Show The version
@@ -63,10 +63,10 @@ If you choose Yes, new options will appear for you choose the atom you want (Ex.
 If you choose No, the script will not plot all energy levels together of each atom of your system.
 
 - The Second option that will appear is:
-"Do you want to customize your chart for xmgrace? (Y)Yes (N)No"
-(EXPERIMENTAL OPTION)
-If you like to plot your graph in xmgrace, this option is for you, this tool will customize your graph with subtitles for each state automatically, colors and many others features that will choose.
-If you choose Yes, new options will appear asking you for the X_min, X_max, Y_min and Y_max values to cut your graph. After that, you will be asked to enter the color of each line, and a .agr file will be generated after this script do its work.
+"Do you want to customize the PDOS plot to the xmgrace format (it generates an .agr file)? (Y)Yes (N)No"
+(OPTIONAL)
+If you like to plot graphs in xmgrace, you can use this option to generate an .agr file with all the subtitles for each energy state.
+If you choose Yes, new options will appear asking you to enter the minimum and maximum values for the X and Y axis, and the colors you want (in the latter, you can use the default colors). 
 
 - The Third option that will appear is:
 "Do you want to split the PDOS from some atom? (Y)Yes (N)No" 
