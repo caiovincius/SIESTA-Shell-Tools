@@ -23,7 +23,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
    all the options are selected with only one command line, the calculation
    will be done immediately
 
-###      Important: If you don't use any terminal command options, the script will automatically start the INTERACTIVE MODE.
+####      Important: If you don't use any terminal command options, the script will automatically start the INTERACTIVE MODE.
 
 ## Terminal Commands
 
