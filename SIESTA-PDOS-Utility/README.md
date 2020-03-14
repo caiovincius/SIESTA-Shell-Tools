@@ -59,8 +59,8 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 - "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 
      - If you choose Yes, new options will appear and you have to enter the atom specie you want (Ex.: Fe, C_gga, Mn_lda...), with the orbital separated by "-" (Ex.: Fe-3s, Fe-3p, C_gga-2p, Mn_lda-4f, N-2, Cl_gga-3...) 
-     - If you don't want to separate the energy levels for each orbital of an atom specie, enter only the atom specie without the orbital. 
-        - If you choose No, the tool will plot all energy levels together for each atom specie.
+          - If you don't want to separate the energy levels for each orbital of an atom specie, enter only the atom specie without the orbital. 
+     - If you choose No, the tool will plot all energy levels together for each atom specie.
 
 - "Do you want to customize the PDOS plot to the xmgrace format (it generates an .agr file)? (Y)Yes (N)No"
 (OPTIONAL)
@@ -69,6 +69,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
      - If you choose No, a .dat file will be generated, and the corresponding subtitles for each energy state will appear in the terminal.
 
 - "Do you want to split the PDOS from some atom? (Y)Yes (N)No" 
+      - If you like to plot graphs in xmgrace, you can use this option to generate an .agr file with all the subtitles for each energy state.
       - This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule.   
       - Certify yourself that the atoms coordinates of the compound 1 is after or before the atom coordinates of the compound 2 in your SIESTA input. 
             - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
