@@ -71,17 +71,14 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 - "Do you want to split the PDOS from some atom? (Y)Yes (N)No"
 
      - This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule.
-
+     
+     - Basically, what the tool wil do is split the PDOS from the atom X to atom Y, and then it will compare the two files, if a repeated specie is found, it will extract them separately and will put a different subtitle in these states (Ex.: Substitle C(1) for carbon states of the nanotube and C(2) of the ethanol), the others states will be extracted normally.
+     
      - Certify yourself that the atoms coordinates of the compound 1 is after or before the atom coordinates of the compound 2 in your SIESTA input. 
-          - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds.       
+          - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, if you choose Yes, type 80 to split the PDOS after the 80 atom to separate the carbon states of both compounds.       
 
-- "Do you want to split the PDOS from some atom? (Y)Yes (N)No" 
-      - This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule.   
-      - Certify yourself that the atoms coordinates of the compound 1 is after or before the atom coordinates of the compound 2 in your SIESTA input. 
-            - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
-Hence, in this option you have to enter from which atom you want to separate the states. You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
-Note: Basically, what the tool wil do is split the PDOS from the atom X to atom Y, and then it will compare the two files, if a repeated specie is found, it will extract them separately and will put a different subtitle in these states (Ex.: Substitle C(1) for carbon states of the nanotube and C(2) of the ethanol), the others states will be extracted normally.
-
+     - You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
+     
 ## What will be done?
 After you choose all the options you want, this tools will:
 - Create a folder with your System Label
