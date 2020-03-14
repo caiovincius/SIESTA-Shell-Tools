@@ -59,7 +59,9 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 - "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 
      - If you choose Yes, new options will appear and you have to enter the atom specie you want (Ex.: Fe, C_gga, Mn_lda...), with the orbital separated by "-" (Ex.: Fe-3s, Fe-3p, C_gga-2p, Mn_lda-4f, N-2, Cl_gga-3...) 
+     
           - If you don't want to separate the energy levels for each orbital of an atom specie, enter only the atom specie without the orbital. 
+          
      - If you choose No, the tool will plot all energy levels together for each atom specie.
 
 - "Do you want to customize the PDOS plot to the xmgrace format (it generates an .agr file)? (Y)Yes (N)No"
