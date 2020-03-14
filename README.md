@@ -6,7 +6,7 @@
  A short description of each tool are shown below:
 
 ### SIESTA-PDOS-Utility
-This is a very interactive tool that will generate a .dat or .agr file containing the PDOS of your system. The .agr file is compatible with the xmgrace software. In addition, this tool is fully customizable with many options, where you cam separate the energy levels between some atoms, exclude some energy levels from some atoms and more. This script really does everything automatically, so it's very powerful tool.
+This is a very interactive tool that will generate a .dat or .agr file containing the PDOS of your system. The .agr file is compatible with the xmgrace software. In addition, this tool is fully customizable with many options, where you can separate the energy levels between some atoms, exclude some energy levels from some atoms and more. This script really does everything automatically, so it's a very powerful tool.
 
 ### SIESTA-Mulliken-Population-Utility
 This tool will calculate the Mulliken Population per atom specie from the output (.out) of SIESTA. It is fully customizable, where you can sum over only some atoms, substract from some pre-defined value and so on.
