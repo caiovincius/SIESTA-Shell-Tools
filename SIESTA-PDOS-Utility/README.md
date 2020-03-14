@@ -90,13 +90,9 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
      - If you choose No, the Fermi Level of the system will remain the same.
 
 ## What will be done?
-After you choose all the options you want, this tools will:
-- Create a folder with your System Label
-- Move your .PDOS and .bands files for the created folder
-- Generate a .dat file called PDOS-YOUR_SYSTEMLABEL.dat with your PDOS graph.
-- Generate a .dat file called Fermi-Level.dat with you Fermi Level coordinates to be imported in your PDOS graph.
-- If you choose to customize your graph for xmgrace, a .agr file will be generated and automatically will be openned in your xmgrace.
-- If you DO NOT choose to customize your graph for xmgrace, a table with the order of each state will be shown in your terminal. Ex.: 
+- A folder with your System Label name will be created, and the .PDOS, .bands and al of the generated files will be moved to this folder.
+- If you chose to customize the PDOS for the xmgrace format or used the options: -xmg or --enable-xmg, a .agr file called PDOS-YOUR_SYSTEMLABEL.agr wil be generated.
+- If you don't chose to customize the PDOS for the xmgrace format or didn't use the options: -xmg or --enable-xmg, a .dat file called PDOS-YOUR_SYSTEMLABEL.dat wil be generated, and the subtitles for their corresponding values will be shownappear in the terminal. Ex.: 
     ```
     1º State: C
     2º State: N_2s
@@ -104,4 +100,4 @@ After you choose all the options you want, this tools will:
     4º State: H(1)
     5º State: H(2)
      ```
-- If you choose to split the PDOS from some atom and repeated species were found, a different subtitle will be done for these states automatically in the generated .agr file, if you chooose to customize the graph for xmgrace, if not the subtitles will appear with different names for the repeated species, for example the 4º and 5º State in the example above for hydrogen.
+- If you choose to split the PDOS from some atom and repeated species were found, a different subtitle will be generated for these states automatically in the generated .agr file. However, in the case of the .dat file, the subtitles will appear with different names for the repeated species in the terminal (Look the 4º and 5º states in the example above).
