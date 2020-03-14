@@ -65,7 +65,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
      - If you choose No, the tool will plot all energy levels together for each atom specie.
 
 - "Do you want to customize the PDOS plot to the xmgrace format (it generates an .agr file)? (Y)Yes (N)No"
-(OPTIONAL)
+
      - If you like to plot graphs in xmgrace, you can use this option to generate an .agr file with all the subtitles for each energy state.
      - If you choose Yes, new options will appear asking you to enter the minimum and maximum values for the X and Y axis, and the colors you want (in the latter, you can use the default colors). 
      - If you choose No, a .dat file will be generated, and the corresponding subtitles for each energy state will appear in the terminal.
