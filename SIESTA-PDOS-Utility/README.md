@@ -58,9 +58,9 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
 
 - "Do you want to separate each energy level from each atom? (Y)Yes (N)No"
 
-     - If you choose Yes, new options will appear and you have to enter the atoms you want (Ex.: Fe, C_gga, Mn_lda... Enter the specie name that appear), and then the energy level you want (Ex.: 2s, 3p, 4f, 3, 5... You can enter only the n quantum number or the n and l quantum numbers). After that, the tool you ask if you want to plot more energy levels and you can choose as many as you want. If you don't wanna, type 0.
-
-     - If you choose No, the script will not plot all energy levels together of each atom of your system.
+     - If you choose Yes, new options will appear and you have to enter the atom specie you want (Ex.: Fe, C_gga, Mn_lda...), with the orbital separated by "-" (Ex.: Fe-3s, Fe-3p, C_gga-2p, Mn_lda-4f, N-2, Cl_gga-3...) 
+     - If you don't want to separate the energy levels for each orbital of an atom specie, enter only the atom specie without the orbital. 
+     - If you choose No, the script will plot all energy levels together for each atom specie.
 
 - "Do you want to customize the PDOS plot to the xmgrace format (it generates an .agr file)? (Y)Yes (N)No"
 (OPTIONAL)
@@ -69,9 +69,7 @@ A easy tool to make PDOS in SIESTA, if you want to know how to do PDOS very easy
      - If you choose No, a .dat file will be generated, and the corresponding subtitles for each energy state will appear in the terminal.
 
 - "Do you want to split the PDOS from some atom? (Y)Yes (N)No" 
-
-      -  This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule. 
-      
+      - This option is useful if the system have two compunds constituted with the same atoms. Ex.: Carbon Nanotube interacting with Ethanol molecule, so both compounds have carbon atoms, with this option you can separate the carbon atom states of the nanotube from carbon atom states of the ethanol molecule.   
       - Certify yourself that the atoms coordinates of the compound 1 is after or before the atom coordinates of the compound 2 in your SIESTA input. 
             - Ex.: If you have a carbon nanotube with 80 atoms and the coordinates of the ethanol is located after the nanotube, so from atom 81 onwards is only the ethanol molecule. Thus, you can split the PDOS after the 81 atom to separate the carbon states of both compounds. 
 Hence, in this option you have to enter from which atom you want to separate the states. You can also separate the states from X atom until Y atom and from Y atom until Z atom, as many atoms as you want. Ex.: 81 to 90 to 95 to 101...
